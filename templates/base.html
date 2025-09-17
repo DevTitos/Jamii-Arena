@@ -1,0 +1,383 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard - NFT Talent Show Arena{% endblock title %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --accent: #00f0d6;
+            --accent-dark: #00c4a9;
+            --dark-bg: #050817;
+            --card-bg: rgba(7, 16, 38, 0.8);
+            --text-primary: #e6eef8;
+            --text-secondary: #9fb4c9;
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+        
+        .tech-border {
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 214, 0.1);
+        }
+        
+        .card-glass {
+            background: rgba(7, 16, 38, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .accent-text {
+            color: var(--accent);
+        }
+        
+        .accent-gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 240, 214, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 240, 214, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 240, 214, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0); }
+        }
+        
+        .glitch {
+            position: relative;
+            animation: glitch 5s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 0 var(--accent); }
+            5% { text-shadow: -2px 2px 0 #ff00ff, 2px -2px 0 #00ffff; }
+            6% { text-shadow: 0 0 0 var(--accent); }
+            100% { text-shadow: 0 0 0 var(--accent); }
+        }
+        
+        .hex-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 214, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 214, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .loading-bar {
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 50%, var(--accent) 100%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite linear;
+            border-radius: 4px;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 240, 214, 0.2);
+        }
+        
+        .sidebar {
+            width: 260px;
+            transition: all 0.3s ease;
+        }
+        
+        .main-content {
+            margin-left: 260px;
+            transition: all 0.3s ease;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+                height: 100vh;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 40;
+            }
+            
+            .overlay.active {
+                display: block;
+            }
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            background: rgba(0, 240, 214, 0.1);
+        }
+        
+        .nav-item.active {
+            background: rgba(0, 240, 214, 0.2);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 8px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+            border-radius: 10px;
+        }
+        
+        .notification-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+        
+        .nft-card {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .nft-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 240, 214, 0.2);
+        }
+        
+        .nft-image {
+            transition: all 0.5s ease;
+        }
+        
+        .nft-card:hover .nft-image {
+            transform: scale(1.05);
+        }
+    </style>
+    {% block style %}{% endblock style %}
+</head>
+<body class="hex-pattern min-h-screen">
+    
+
+    <!-- Sidebar -->
+    <aside class="sidebar fixed top-0 left-0 h-full bg-[#050817] tech-border border-t-0 border-b-0 border-l-0 py-6">
+        <div class="flex flex-col h-full">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2 px-6 pb-6 border-b border-[#00f0d6]/20">
+                <div class="w-10 h-10 rounded-full accent-gradient flex items-center justify-center">
+                    <i class="fas fa-cube text-black"></i>
+                </div>
+                <span class="text-xl font-bold accent-text">JAMII ARENA</span>
+            </div>
+
+            <!-- User Profile -->
+            <div class="px-6 py-6 border-b border-[#00f0d6]/20">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#00f0d6] to-[#007a6c] flex items-center justify-center">
+                        <i class="fas fa-user-astronaut text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">{{user.first_name}}</h3>
+                        <p class="text-xs text-[#9fb4c9] truncate" style="max-width: 140px;">{{user.wallet.recipient_id}}</p>
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-2">
+                    <div class="bg-[#071026] p-2 rounded text-center">
+                        <div class="text-sm accent-text font-bold">42</div>
+                        <div class="text-xs text-[#9fb4c9]">NFTs</div>
+                    </div>
+                    <div class="bg-[#071026] p-2 rounded text-center">
+                        <div class="text-sm accent-text font-bold">18</div>
+                        <div class="text-xs text-[#9fb4c9]">Votes</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 px-3 py-6 overflow-y-auto">
+                <ul class="space-y-1">
+                    <li class="nav-item active">
+                        <a href="{% url 'dashboard' %}" class="flex items-center px-3 py-3 text-sm">
+                            <i class="fas fa-home w-5 mr-3 accent-text"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'nft' %}" class="flex items-center px-3 py-3 text-sm">
+                            <i class="fas fa-ticket-alt w-5 mr-3 text-[#9fb4c9]"></i>
+                            <span>Tickets</span>
+                            <span class="ml-auto bg-[#00f0d6] text-black text-xs px-2 py-0.5 rounded-full">12</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'voting' %}" class="flex items-center px-3 py-3 text-sm">
+                            <i class="fas fa-vote-yea w-5 mr-3 text-[#9fb4c9]"></i>
+                            <span>Voting</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="flex items-center px-3 py-3 text-sm">
+                            <i class="fas fa-coins w-5 mr-3 text-[#9fb4c9]"></i>
+                            <span>Earnings</span>
+                            <span class="ml-auto notification-dot"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'governance' %}" class="flex items-center px-3 py-3 text-sm">
+                            <i class="fas fa-landmark w-5 mr-3 text-[#9fb4c9]"></i>
+                            <span>Governance</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'profile' %}" class="flex items-center px-3 py-3 text-sm">
+                            <i class="fas fa-user-astronaut w-5 mr-3 text-[#9fb4c9]"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Footer -->
+            <div class="px-6 pt-6 border-t border-[#00f0d6]/20">
+                <button class="btn-secondary w-full py-2 rounded-lg text-sm">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Disconnect
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content min-h-screen pb-12">
+        <!-- Dashboard Content -->
+        <div class="p-6">
+            {% block content %}{% endblock content %}
+        </div>
+    </main>
+
+    <script>
+        // Hide loading screen when page is loaded
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loading').style.opacity = '0';
+                setTimeout(function() {
+                    document.getElementById('loading').style.display = 'none';
+                }, 500);
+            }, 1000);
+        });
+        
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        });
+        
+        document.getElementById('overlay').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.remove('active');
+            this.classList.remove('active');
+        });
+        
+        // Simulate live data updates
+        function updateLiveData() {
+            // Randomly update some stats
+            const stats = document.querySelectorAll('.stats-card .text-2xl');
+            stats.forEach(stat => {
+                if (Math.random() > 0.7) {
+                    const current = parseInt(stat.textContent.replace('$', '').replace(',', ''));
+                    const newValue = current + Math.floor(Math.random() * 10);
+                    stat.textContent = stat.textContent.includes('$') ? `$${newValue}` : newValue;
+                }
+            });
+        }
+        
+        setInterval(updateLiveData, 5000);
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.fade-in').forEach(element => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>

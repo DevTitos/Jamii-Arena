@@ -1,0 +1,730 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock title %}
+{% block style %}
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-button {
+            transition: all 0.3s ease;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .tab-button.active {
+            background: rgba(0, 240, 214, 0.2);
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background: var(--dark-bg);
+            margin: 5% auto;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            box-shadow: 0 0 30px rgba(0, 240, 214, 0.2);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-input {
+            background: rgba(7, 16, 38, 0.6);
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 12px 16px;
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 240, 214, 0.3);
+            outline: none;
+        }
+        
+        .step-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0, 240, 214, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        
+        .step-indicator.active {
+            background: var(--accent);
+            color: #000;
+        }
+        
+        .step-indicator.completed {
+            background: var(--accent);
+            color: #000;
+        }
+        
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 8px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+            border-radius: 10px;
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-primary {
+            background: rgba(0, 240, 214, 0.2);
+            color: var(--accent);
+        }
+        
+        .badge-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .badge-warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+        }
+        
+        .onboarding-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .onboarding-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 240, 214, 0.2);
+        }
+        
+        .settings-item {
+            transition: all 0.3s ease;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        
+        .settings-item:hover {
+            background: rgba(0, 240, 214, 0.1);
+        }
+    </style>
+{% endblock style %}
+{% block content %}
+        <div class="card-glass p-6 rounded-xl mb-8 fade-in">
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+                <div class="relative">
+                    <div class="w-24 h-24 rounded-full bg-gradient-to-br from-[#00f0d6] to-[#007a6c] flex items-center justify-center">
+                        <i class="fas fa-user-astronaut text-white text-3xl"></i>
+                    </div>
+                    <div class="absolute bottom-0 right-0 w-8 h-8 rounded-full accent-gradient flex items-center justify-center">
+                        <i class="fas fa-pencil-alt text-black text-xs"></i>
+                    </div>
+                </div>
+                
+                <div class="flex-1 text-center md:text-left">
+                    <h1 class="text-3xl font-bold">{{user.first_name}}</h1>
+                    <p class="text-[#9fb4c9] mt-1">Digital Art Enthusiast • NFT Collector</p>
+                    <p class="text-sm text-[#9fb4c9] mt-2">Joined March 2023 • <span class="accent-text">Member</span></p>
+                    
+                    <div class="flex flex-wrap gap-2 mt-4 justify-center md:justify-start">
+                        <span class="badge badge-primary">12 NFTs</span>
+                        <span class="badge badge-primary">42 Votes Cast</span>
+                        <!--span class="badge badge-success">DAO Member</span-->
+                        <span class="badge badge-warning">Artist Applicant</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 md:mt-0">
+                    <button class="btn-secondary px-4 py-2 rounded-lg">
+                        <i class="fas fa-share-alt mr-2"></i> Share Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex justify-center mb-8">
+            <div class="card-glass p-1 flex flex-wrap">
+                <div class="tab-button active" data-tab="overview">
+                    <i class="fas fa-chart-pie mr-2"></i> Overview
+                </div>
+                <div class="tab-button" data-tab="activity">
+                    <i class="fas fa-history mr-2"></i> Activity
+                </div>
+                <div class="tab-button" data-tab="nfts">
+                    <i class="fas fa-ticket-alt mr-2"></i> My NFTs
+                </div>
+                <div class="tab-button" data-tab="settings">
+                    <i class="fas fa-cog mr-2"></i> Settings
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content">
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-panel active">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left Column -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Stats Overview -->
+                        <div class="card-glass p-6 rounded-xl">
+                            <h2 class="text-2xl font-bold mb-6">Profile Stats</h2>
+                            
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center p-4 bg-[#071026] rounded-lg">
+                                    <div class="text-2xl font-bold accent-text">12</div>
+                                    <div class="text-sm text-[#9fb4c9] mt-1">NFTs Owned</div>
+                                </div>
+                                <div class="text-center p-4 bg-[#071026] rounded-lg">
+                                    <div class="text-2xl font-bold accent-text">42</div>
+                                    <div class="text-sm text-[#9fb4c9] mt-1">Votes Cast</div>
+                                </div>
+                                <!--div class="text-center p-4 bg-[#071026] rounded-lg">
+                                    <div class="text-2xl font-bold accent-text">7</div>
+                                    <div class="text-sm text-[#9fb4c9] mt-1">DAO Votes</div>
+                                </div-->
+                                <div class="text-center p-4 bg-[#071026] rounded-lg">
+                                    <div class="text-2xl font-bold accent-text">3</div>
+                                    <div class="text-sm text-[#9fb4c9] mt-1">Artists Supported</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hedera Network Data -->
+                        <div class="card-glass p-6 rounded-xl">
+                            <h2 class="text-2xl font-bold mb-6">Hedera Network Data</h2>
+                            
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[#9fb4c9] ">Wallet Address</span>
+                                    <span class="font-bold text-sm">{{user.wallet.recipient_id}}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[#9fb4c9]">Account Balance</span>
+                                    <span class="font-bold accent-text">1,245 HBAR</span>
+                                </div>
+                                <!--div class="flex justify-between items-center">
+                                    <span class="text-[#9fb4c9]">First Transaction</span>
+                                    <span class="text-sm">March 15, 2023</span>
+                                </div-->
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[#9fb4c9]">Network Status</span>
+                                    <span class="text-sm accent-text">Connected</span>
+                                </div>
+                            </div>
+                            
+                            <!--div class="mt-6">
+                                <a href="#" class="text-sm accent-text hover:underline flex items-center">
+                                    <i class="fas fa-external-link-alt mr-2"></i> View on HashScan
+                                </a>
+                            </div-->
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <!-- Onboarding Actions -->
+                        <div class="card-glass p-6 rounded-xl">
+                            <h2 class="text-2xl font-bold mb-6">Complete Your Profile</h2>
+                            
+                            <div class="space-y-4">
+                                <div class="onboarding-card card-glass p-4 rounded-lg flex items-center" onclick="openModal('becomeArtistModal')">
+                                    <div class="step-indicator">
+                                        <i class="fas fa-palette"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-bold">Become an Artist</h3>
+                                        <p class="text-sm text-[#9fb4c9] mt-1">Showcase your talent and mint NFTs</p>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-[#9fb4c9]"></i>
+                                </div>
+                                
+                                <!--div class="onboarding-card card-glass p-4 rounded-lg flex items-center" onclick="openModal('joinDAOModal')">
+                                    <div class="step-indicator">
+                                        <i class="fas fa-landmark"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-bold">Join the DAO</h3>
+                                        <p class="text-sm text-[#9fb4c9] mt-1">Participate in governance</p>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-[#9fb4c9]"></i>
+                                </div>
+                                
+                                <div class="onboarding-card card-glass p-4 rounded-lg flex items-center" onclick="openModal('createDIDModal')">
+                                    <div class="step-indicator">
+                                        <i class="fas fa-id-card"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-bold">Create DID</h3>
+                                        <p class="text-sm text-[#9fb4c9] mt-1">Decentralized Identity</p>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-[#9fb4c9]"></i>
+                                </div-->
+                                
+                                <div class="onboarding-card card-glass p-4 rounded-lg flex items-center">
+                                    <div class="step-indicator completed">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-bold">Connect Wallet</h3>
+                                        <p class="text-sm text-[#9fb4c9] mt-1">Completed</p>
+                                    </div>
+                                    <i class="fas fa-check text-accent"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Activity >
+                        <div class="card-glass p-6 rounded-xl">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold">Recent Activity</h2>
+                                <a href="#" class="text-sm accent-text hover:underline">View All</a>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-[#071026] p-2 rounded-lg mt-0.5">
+                                        <i class="fas fa-vote-yea accent-text"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold">Voted for Cosmic Creator</h3>
+                                        <p class="text-xs text-[#9fb4c9] mt-1">5 votes • 2 hours ago</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-[#071026] p-2 rounded-lg mt-0.5">
+                                        <i class="fas fa-ticket-alt accent-text"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold">Minted VIP Ticket</h3>
+                                        <p class="text-xs text-[#9fb4c9] mt-1">#042 • 1 day ago</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-[#071026] p-2 rounded-lg mt-0.5">
+                                        <i class="fas fa-coins accent-text"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold">Received Rewards</h3>
+                                        <p class="text-xs text-[#9fb4c9] mt-1">12.5 HBAR • 2 days ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div-->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Tab (initially hidden) -->
+            <div id="settings-tab" class="tab-panel hidden">
+                <div class="card-glass p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold mb-6">Account Settings</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="settings-item card-glass p-4 rounded-lg">
+                            <h3 class="font-bold">Profile Information</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-1">Update your username, bio, and profile image</p>
+                            <button class="btn-secondary mt-3 px-4 py-2 rounded-lg text-sm">
+                                Edit Profile
+                            </button>
+                        </div>
+                        
+                        <!--div class="settings-item card-glass p-4 rounded-lg">
+                            <h3 class="font-bold">Wallet Settings</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-1">Manage connected wallets and security</p>
+                            <button class="btn-secondary mt-3 px-4 py-2 rounded-lg text-sm">
+                                Manage Wallets
+                            </button>
+                        </div>
+                        
+                        <div class="settings-item card-glass p-4 rounded-lg">
+                            <h3 class="font-bold">Notification Preferences</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-1">Customize how you receive updates</p>
+                            <button class="btn-secondary mt-3 px-4 py-2 rounded-lg text-sm">
+                                Configure Notifications
+                            </button>
+                        </div>
+                        
+                        <div class="settings-item card-glass p-4 rounded-lg">
+                            <h3 class="font-bold">Privacy & Security</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-1">Manage your privacy settings and data</p>
+                            <button class="btn-secondary mt-3 px-4 py-2 rounded-lg text-sm">
+                                Privacy Settings
+                            </button>
+                        </div>
+                        
+                        <div class="settings-item card-glass p-4 rounded-lg">
+                            <h3 class="font-bold">API Access</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-1">Generate API keys for developers</p>
+                            <button class="btn-secondary mt-3 px-4 py-2 rounded-lg text-sm">
+                                Manage API Keys
+                            </button>
+                        </div-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+    <!-- Become Artist Modal -->
+    <div id="becomeArtistModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-[#00f0d6]/30">
+                <h2 class="text-2xl font-bold">Become an Artist</h2>
+                <button class="absolute top-4 right-4 text-[#9fb4c9] hover:text-white" onclick="closeModal('becomeArtistModal')">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center mb-6">
+                    <div class="step-indicator active">1</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold">Artist Application</h3>
+                        <p class="text-sm text-[#9fb4c9]">Showcase your talent to the community</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Artist Name</label>
+                        <input type="text" class="form-input" placeholder="Enter your artist name">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Social Media Official Link</label>
+                        <input type="url" class="form-input" placeholder="https://">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Artist Statement</label>
+                        <textarea class="form-input" rows="3" placeholder="Tell us about your artistic vision"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Artistic Category</label>
+                        <select class="form-input">
+                            <option>Digital Art</option>
+                            <option>Generative Art</option>
+                            <option>Photography</option>
+                            <option>3D Art</option>
+                            <option>AI Art</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Upload Portfolio Samples</label>
+                        <div class="border-2 border-dashed border-[#00f0d6]/30 rounded-lg p-6 text-center">
+                            <i class="fas fa-cloud-upload-alt text-[#9fb4c9] text-2xl mb-2"></i>
+                            <p class="text-sm text-[#9fb4c9]">Drag & drop files or click to browse</p>
+                            <p class="text-xs text-[#9fb4c9] mt-1">Max 5 files, 10MB each</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex space-x-3">
+                    <button class="btn-primary flex-1 py-3 rounded-lg" onclick="nextStep('becomeArtistModal', 2)">
+                        Next Step
+                    </button>
+                    <button class="btn-secondary flex-1 py-3 rounded-lg" onclick="closeModal('becomeArtistModal')">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join DAO Modal -->
+    <div id="joinDAOModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-[#00f0d6]/30">
+                <h2 class="text-2xl font-bold">Join the DAO</h2>
+                <button class="absolute top-4 right-4 text-[#9fb4c9] hover:text-white" onclick="closeModal('joinDAOModal')">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center mb-6">
+                    <div class="step-indicator active">1</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold">DAO Membership</h3>
+                        <p class="text-sm text-[#9fb4c9]">Participate in platform governance</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="card-glass p-4 rounded-lg">
+                        <h3 class="font-bold">Membership Benefits</h3>
+                        <ul class="mt-2 text-sm text-[#9fb4c9] space-y-1">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle accent-text mt-1 mr-2"></i>
+                                <span>Vote on platform proposals and changes</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle accent-text mt-1 mr-2"></i>
+                                <span>Receive a share of platform revenue</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle accent-text mt-1 mr-2"></i>
+                                <span>Early access to new features and drops</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle accent-text mt-1 mr-2"></i>
+                                <span>Participate in exclusive DAO events</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Stake Amount (JAMII Tokens)</label>
+                        <input type="number" class="form-input" value="100" min="10">
+                        <p class="text-xs text-[#9fb4c9] mt-2">Minimum 10 JAMII tokens required. Staking grants voting power proportional to your stake.</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Staking Duration</label>
+                        <select class="form-input">
+                            <option>30 days</option>
+                            <option>90 days (1.5x multiplier)</option>
+                            <option>180 days (2x multiplier)</option>
+                            <option>365 days (3x multiplier)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex space-x-3">
+                    <button class="btn-primary flex-1 py-3 rounded-lg" onclick="simulateDIDCreation()">
+                        Join DAO
+                    </button>
+                    <button class="btn-secondary flex-1 py-3 rounded-lg" onclick="closeModal('joinDAOModal')">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create DID Modal -->
+    <div id="createDIDModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-[#00f0d6]/30">
+                <h2 class="text-2xl font-bold">Create Decentralized Identity (DID)</h2>
+                <button class="absolute top-4 right-4 text-[#9fb4c9] hover:text-white" onclick="closeModal('createDIDModal')">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center mb-6">
+                    <div class="step-indicator active">1</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold">DID Setup</h3>
+                        <p class="text-sm text-[#9fb4c9]">Create your decentralized identity on Hedera</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="card-glass p-4 rounded-lg">
+                        <h3 class="font-bold">What is a DID?</h3>
+                        <p class="text-sm text-[#9fb4c9] mt-2">
+                            A Decentralized Identifier (DID) is a new type of identifier that enables verifiable,
+                            self-sovereign digital identity. Your DID will be stored on the Hedera network and
+                            can be used across various applications.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">DID Method</label>
+                        <select class="form-input">
+                            <option>hedera:mainnet</option>
+                            <option>hedera:testnet</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Verifiable Credentials</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="form-checkbox accent-[#00f0d6]">
+                                <span class="ml-2 text-sm">Email Verification</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="form-checkbox accent-[#00f0d6]">
+                                <span class="ml-2 text-sm">Wallet Ownership</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="form-checkbox accent-[#00f0d6]">
+                                <span class="ml-2 text-sm">DAO Membership</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex space-x-3">
+                    <button class="btn-primary flex-1 py-3 rounded-lg" onclick="simulateDIDCreation()">
+                        Create DID
+                    </button>
+                    <button class="btn-secondary flex-1 py-3 rounded-lg" onclick="closeModal('createDIDModal')">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DID Creation Success Modal -->
+    <div id="didSuccessModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-[#00f0d6]/30">
+                <h2 class="text-2xl font-bold">DID Created Successfully</h2>
+                <button class="absolute top-4 right-4 text-[#9fb4c9] hover:text-white" onclick="closeModal('didSuccessModal')">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-black text-2xl"></i>
+                </div>
+                
+                <h3 class="text-xl font-bold mb-2">Decentralized Identity Created</h3>
+                <p class="text-[#9fb4c9] mb-4">Your DID has been successfully registered on the Hedera network</p>
+                
+                <div class="card-glass p-4 rounded-lg text-left mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[#9fb4c9]">DID:</span>
+                        <span class="font-mono text-sm">did:hedera:mainnet:1234567890</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[#9fb4c9]">Transaction ID:</span>
+                        <span class="font-mono text-sm">0.0.123456@1234567890</span>
+                    </div>
+                </div>
+                
+                <button class="btn-primary px-6 py-3 rounded-lg" onclick="closeModal('didSuccessModal')">
+                    Continue to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab-button').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all tab panels
+                document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+                // Show the selected tab panel
+                const tabName = this.getAttribute('data-tab');
+                document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            });
+        });
+        
+        // Modal functionality
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (event.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+        
+        // Simulate DID creation process
+        function simulateDIDCreation() {
+            closeModal('createDIDModal');
+            closeModal('joinDAOModal');
+            
+            // Show loading state
+            setTimeout(() => {
+                openModal('didSuccessModal');
+            }, 1500);
+        }
+        
+        // Next step in multi-step modals
+        function nextStep(modalId, step) {
+            // This would handle multi-step forms in a real application
+            alert(`Would proceed to step ${step} in a real application`);
+        }
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.fade-in').forEach(element => {
+            observer.observe(element);
+        });
+        
+        // HTMX example for dynamic content loading
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            // This would handle dynamic content loading in a real application
+            console.log('Content swapped:', evt.detail.target.id);
+        });
+    </script>
+{% endblock content %}

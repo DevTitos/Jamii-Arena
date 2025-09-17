@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Talent Show Arena — Access Your Account</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --accent: #00f0d6;
+            --accent-dark: #00c4a9;
+            --dark-bg: #050817;
+            --card-bg: rgba(7, 16, 38, 0.8);
+            --text-primary: #e6eef8;
+            --text-secondary: #9fb4c9;
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tech-border {
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 214, 0.1);
+        }
+        
+        .card-glass {
+            background: rgba(7, 16, 38, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .accent-text {
+            color: var(--accent);
+        }
+        
+        .accent-gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 240, 214, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 240, 214, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 240, 214, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0); }
+        }
+        
+        .glitch {
+            position: relative;
+            animation: glitch 5s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 0 var(--accent); }
+            5% { text-shadow: -2px 2px 0 #ff00ff, 2px -2px 0 #00ffff; }
+            6% { text-shadow: 0 0 0 var(--accent); }
+            100% { text-shadow: 0 0 0 var(--accent); }
+        }
+        
+        .hex-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 214, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 214, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-input {
+            background: rgba(7, 16, 38, 0.6);
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 240, 214, 0.3);
+            outline: none;
+        }
+        
+        .auth-container {
+            min-height: calc(100vh - 80px);
+        }
+        
+        .toggle-forms {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-forms:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+        
+        .wallet-option {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .wallet-option:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body class="hex-pattern">
+    <!-- Navigation -->
+    <nav class="w-full bg-[#050817] tech-border border-t-0 border-l-0 border-r-0 py-3 px-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full accent-gradient flex items-center justify-center">
+                    <i class="fas fa-cube text-black"></i>
+                </div>
+                <span class="text-xl font-bold accent-text">UNITY CHAMBER</span>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'landing' %}" class="text-sm hover:accent-text transition-colors">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Arena
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Auth Container -->
+    <div class="auth-container flex flex-col justify-center py-12 px-4">
+        <div class="max-w-md mx-auto w-full">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 rounded-full accent-gradient flex items-center justify-center mx-auto pulse">
+                    <i class="fas fa-cube text-3xl text-black"></i>
+                </div>
+                <h1 class="text-3xl font-bold glitch accent-text mt-4">ACCESS ARENA</h1>
+                <p class="text-[#9fb4c9] mt-2">Mint • Vote • Own • Earn</p>
+            </div>
+            {% include 'partials/_messages.html' %}
+            <!-- Login Form -->
+            <div id="login-form" class="card-glass p-8 rounded-2xl fade-in">
+                <h2 class="text-2xl font-bold text-center accent-text mb-2">Welcome Back</h2>
+                <p class="text-center text-[#9fb4c9] mb-6">Sign in to your NFT Talent Show account</p>
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="mb-5">
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Email</label>
+                        <input type="email" name="email" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="mb-5">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm text-[#9fb4c9]">Password</label>
+                            <a href="#" class="text-sm accent-text hover:underline">Forgot?</a>
+                        </div>
+                        <input type="password" name="password" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Enter your password">
+                    </div>
+                    
+                    <div class="mb-5">
+                        <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold">
+                            <i class="fas fa-lock-open mr-2"></i> Sign In
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mb-5">
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-[#9fb4c9]/30"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-2 bg-[#071026] text-[#9fb4c9]">Or continue with</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="wallet-option card-glass p-3 rounded-lg text-center cursor-pointer">
+                            <i class="fab fa-metagram text-purple-400 text-xl mb-1"></i>
+                            <p class="text-xs">MetaMask</p>
+                        </div>
+                        <div class="wallet-option card-glass p-3 rounded-lg text-center cursor-pointer">
+                            <i class="fab fa-ethereum text-blue-300 text-xl mb-1"></i>
+                            <p class="text-xs">WalletConnect</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center text-sm text-[#9fb4c9]">
+                        Don't have an account? <span id="show-register" class="accent-text toggle-forms font-semibold">Register now</span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Registration Form (Initially Hidden) -->
+            <div id="register-form" class="card-glass p-8 rounded-2xl fade-in hidden">
+                <h2 class="text-2xl font-bold text-center accent-text mb-2">Join the Arena</h2>
+                <p class="text-center text-[#9fb4c9] mb-6">Create your Jamii account</p>
+                {% include 'partials/_messages.html' %}
+                <form method="post" action="{% url 'register' %}">
+                    {% csrf_token %}
+                    <div class="mb-5">
+                        <label class="block text-sm text-[#9fb4c9] mb-2">First Name</label>
+                        <input type="text" name="first_name" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Enter Your First Name">
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Last Name</label>
+                        <input type="text" name="last_name" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Enter Your Last Name">
+                    </div>
+                    
+                    <div class="mb-5">
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Email Address</label>
+                        <input type="email" name="email" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                        <div>
+                            <label class="block text-sm text-[#9fb4c9] mb-2">Password</label>
+                            <input type="password" name="password" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Create password">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-[#9fb4c9] mb-2">Confirm Password</label>
+                            <input type="password" name="password1" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Confirm password">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-5 flex items-start">
+                        <div class="flex items-center h-5">
+                            <input type="checkbox" class="form-input h-4 w-4 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label class="text-[#9fb4c9]">I agree to the <a href="#" class="accent-text hover:underline">Terms of Service</a> and <a href="#" class="accent-text hover:underline">Privacy Policy</a></label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold">
+                            <i class="fas fa-user-plus mr-2"></i> Create Account
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mb-5">
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-[#9fb4c9]/30"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-2 bg-[#071026] text-[#9fb4c9]">Or connect wallet</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="wallet-option card-glass p-3 rounded-lg text-center cursor-pointer">
+                            <i class="fab fa-metagram text-purple-400 text-xl mb-1"></i>
+                            <p class="text-xs">MetaMask</p>
+                        </div>
+                        <div class="wallet-option card-glass p-3 rounded-lg text-center cursor-pointer">
+                            <i class="fab fa-ethereum text-blue-300 text-xl mb-1"></i>
+                            <p class="text-xs">WalletConnect</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center text-sm text-[#9fb4c9]">
+                        Already have an account? <span id="show-login" class="accent-text toggle-forms font-semibold">Sign in</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4 border-t border-[#00f0d6]/20 mt-auto">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full accent-gradient flex items-center justify-center">
+                        <i class="fas fa-cube text-black text-sm"></i>
+                    </div>
+                    <span class="text-lg font-bold accent-text">UNITY CHAMBER</span>
+                </div>
+                
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-center text-sm text-[#9fb4c9]">
+                <p>© 2023 UNITY CHAMBER Arena • Hedera Powered • Built to give underdogs a global stage</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle between login and registration forms
+        document.getElementById('show-register').addEventListener('click', function() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+        });
+        
+        document.getElementById('show-login').addEventListener('click', function() {
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+        });
+        
+        // Wallet connection options
+        document.querySelectorAll('.wallet-option').forEach(wallet => {
+            wallet.addEventListener('click', function() {
+                // Simulate wallet connection
+                this.classList.add('accent-gradient');
+                this.classList.remove('card-glass');
+                
+                // Reset other options
+                document.querySelectorAll('.wallet-option').forEach(other => {
+                    if (other !== wallet) {
+                        other.classList.remove('accent-gradient');
+                        other.classList.add('card-glass');
+                    }
+                });
+                
+                // Simulate connection process
+                setTimeout(() => {
+                    alert('Wallet connection process would start here...');
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>

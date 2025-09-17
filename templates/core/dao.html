@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block title %}Jamii Governance{% enblock title %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>    
+        .tech-border {
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 214, 0.1);
+        }
+        
+        .card-glass {
+            background: rgba(7, 16, 38, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .accent-text {
+            color: var(--accent);
+        }
+        
+        .accent-gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 240, 214, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 240, 214, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 240, 214, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0); }
+        }
+        
+        .glitch {
+            position: relative;
+            animation: glitch 5s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 0 var(--accent); }
+            5% { text-shadow: -2px 2px 0 #ff00ff, 2px -2px 0 #00ffff; }
+            6% { text-shadow: 0 0 0 var(--accent); }
+            100% { text-shadow: 0 0 0 var(--accent); }
+        }
+        
+        .hex-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 214, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 214, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 8px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+            border-radius: 10px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background: var(--dark-bg);
+            margin: 5% auto;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            box-shadow: 0 0 30px rgba(0, 240, 214, 0.2);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .proposal-card {
+            transition: all 0.3s ease;
+        }
+        
+        .proposal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 240, 214, 0.2);
+        }
+        
+        .vote-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .vote-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .form-input {
+            background: rgba(7, 16, 38, 0.6);
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 12px 16px;
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 240, 214, 0.3);
+            outline: none;
+        }
+        
+        .member-tier {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .member-tier:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+        
+        .member-tier.featured {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 20px rgba(0, 240, 214, 0.3);
+        }
+    </style>
+</head>
+<body class="hex-pattern min-h-screen">
+    <!-- Navigation -->
+    <nav class="w-full bg-[#050817] tech-border border-t-0 border-l-0 border-r-0 py-3 px-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full accent-gradient flex items-center justify-center">
+                    <i class="fas fa-cube text-black"></i>
+                </div>
+                <span class="text-xl font-bold accent-text">UNITY CHAMBER</span>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="text-sm hover:accent-text transition-colors">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Arena
+                </a>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#00f0d6] to-[#007a6c] flex items-center justify-center">
+                        <i class="fas fa-user-astronaut text-white text-sm"></i>
+                    </div>
+                    <span class="text-sm hidden md:block">CosmicCollector</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-8 px-4">
+        <!-- Header -->
+        <div class="text-center mb-10 fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold glitch accent-text">DAO Governance Portal</h1>
+            <p class="text-[#9fb4c9] mt-3 max-w-2xl mx-auto">Shape the future of the NFT Talent Show through decentralized governance and community proposals</p>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 fade-in">
+            <div class="card-glass p-5 text-center">
+                <div class="text-2xl font-bold accent-text">42</div>
+                <div class="text-sm text-[#9fb4c9] mt-1">DAO Members</div>
+            </div>
+            <div class="card-glass p-5 text-center">
+                <div class="text-2xl font-bold accent-text">$82.5K</div>
+                <div class="text-sm text-[#9fb4c9] mt-1">Treasury Value</div>
+            </div>
+            <div class="card-glass p-5 text-center">
+                <div class="text-2xl font-bold accent-text">18</div>
+                <div class="text-sm text-[#9fb4c9] mt-1">Active Proposals</div>
+            </div>
+            <div class="card-glass p-5 text-center">
+                <div class="text-2xl font-bold accent-text">7</div>
+                <div class="text-sm text-[#9fb4c9] mt-1">Your Votes</div>
+            </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Proposals Section -->
+                <div class="card-glass p-6 rounded-xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Active Proposals</h2>
+                        <button id="createProposalBtn" class="btn-primary px-4 py-2 rounded-lg text-sm">
+                            <i class="fas fa-plus mr-1"></i> New Proposal
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <!-- Proposal Card -->
+                        <div class="proposal-card card-glass p-5 rounded-xl">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-lg">Increase Prize Pool Allocation to 60%</h3>
+                                    <p class="text-sm text-[#9fb4c9] mt-1">Proposed by: CosmicCreator • 2 days ago</p>
+                                </div>
+                                <span class="bg-[#071026] px-2 py-1 rounded text-xs">Voting</span>
+                            </div>
+                            <p class="mt-3 text-sm">This proposal suggests increasing the prize pool allocation from 50% to 60% of ticket sales to attract more talented artists to the platform.</p>
+                            
+                            <div class="mt-4">
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-[#9fb4c9]">Voting Ends in: 3 days</span>
+                                    <span class="accent-text">Quorum: 65%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 42%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-[#9fb4c9] mt-2">
+                                    <span>42% Yes</span>
+                                    <span>18% No</span>
+                                    <span>40% Abstain</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex space-x-3">
+                                <button class="vote-btn btn-primary px-4 py-2 rounded-lg text-sm flex-1">
+                                    <i class="fas fa-thumbs-up mr-1"></i> Vote For
+                                </button>
+                                <button class="vote-btn btn-secondary px-4 py-2 rounded-lg text-sm flex-1">
+                                    <i class="fas fa-thumbs-down mr-1"></i> Vote Against
+                                </button>
+                                <button class="vote-btn btn-secondary px-4 py-2 rounded-lg text-sm flex-1">
+                                    <i class="fas fa-minus mr-1"></i> Abstain
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Proposal Card -->
+                        <div class="proposal-card card-glass p-5 rounded-xl">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-lg">New Artist Onboarding Process</h3>
+                                    <p class="text-sm text-[#9fb4c9] mt-1">Proposed by: DigitalPainter • 5 days ago</p>
+                                </div>
+                                <span class="bg-[#071026] px-2 py-1 rounded text-xs">Voting</span>
+                            </div>
+                            <p class="mt-3 text-sm">Implement a more rigorous screening process for new artists to maintain quality standards while ensuring diversity of content.</p>
+                            
+                            <div class="mt-4">
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-[#9fb4c9]">Voting Ends in: 6 days</span>
+                                    <span class="accent-text">Quorum: 55%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 65%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-[#9fb4c9] mt-2">
+                                    <span>65% Yes</span>
+                                    <span>22% No</span>
+                                    <span>13% Abstain</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex space-x-3">
+                                <button class="vote-btn btn-primary px-4 py-2 rounded-lg text-sm flex-1">
+                                    <i class="fas fa-thumbs-up mr-1"></i> Vote For
+                                </button>
+                                <button class="vote-btn btn-secondary px-4 py-2 rounded-lg text-sm flex-1">
+                                    <i class="fas fa-thumbs-down mr-1"></i> Vote Against
+                                </button>
+                                <button class="vote-btn btn-secondary px-4 py-2 rounded-lg text-sm flex-1">
+                                    <i class="fas fa-minus mr-1"></i> Abstain
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-6">
+                        <button class="btn-secondary px-6 py-2 rounded-lg">
+                            View All Proposals
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- How It Works -->
+                <div class="card-glass p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold mb-6">How Governance Works</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center mx-auto">
+                                <i class="fas fa-lightbulb text-black text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold mt-4">Propose</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-2">Submit ideas for platform improvements, changes to parameters, or new features.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center mx-auto">
+                                <i class="fas fa-vote-yea text-black text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold mt-4">Vote</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-2">Cast your votes using your governance tokens. Your voting power is proportional to your stake.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center mx-auto">
+                                <i class="fas fa-cog text-black text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold mt-4">Implement</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-2">Successful proposals are automatically implemented through smart contracts.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <!-- Membership Card -->
+                <div class="card-glass p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold mb-4">DAO Membership</h2>
+                    <p class="text-sm text-[#9fb4c9]">Become a DAO member to participate in governance and earn rewards.</p>
+                    
+                    <div class="mt-6 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#9fb4c9]">Your Status</span>
+                            <span class="accent-text font-bold">Member</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#9fb4c9]">Voting Power</span>
+                            <span class="font-bold">42 Votes</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#9fb4c9]">Proposals Created</span>
+                            <span class="font-bold">3</span>
+                        </div>
+                    </div>
+                    
+                    <button id="becomeMemberBtn" class="btn-primary w-full mt-6 py-3 rounded-lg">
+                        <i class="fas fa-star mr-2"></i> Upgrade Membership
+                    </button>
+                </div>
+                
+                <!-- Membership Tiers -->
+                <div class="card-glass p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold mb-4">Membership Tiers</h2>
+                    
+                    <div class="space-y-4 mt-4">
+                        <div class="member-tier card-glass p-4 rounded-lg">
+                            <h3 class="font-bold">Contributor</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-1">1+ NFTs • Basic voting rights</p>
+                            <div class="accent-text font-bold mt-2">1x Voting Power</div>
+                        </div>
+                        
+                        <div class="member-tier card-glass p-4 rounded-lg featured">
+                            <h3 class="font-bold">Member</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-1">5+ NFTs • Full voting rights</p>
+                            <div class="accent-text font-bold mt-2">2x Voting Power</div>
+                        </div>
+                        
+                        <div class="member-tier card-glass p-4 rounded-lg">
+                            <h3 class="font-bold">Patron</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-1">15+ NFTs • Proposal creation</p>
+                            <div class="accent-text font-bold mt-2">3x Voting Power</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Treasury Overview -->
+                <div class="card-glass p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold mb-4">Treasury Overview</h2>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#9fb4c9]">Total Value</span>
+                            <span class="font-bold">$82,542</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#9fb4c9]">HBAR</span>
+                            <span class="font-bold">125,420</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#9fb4c9]">NFTs</span>
+                            <span class="font-bold">42</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#9fb4c9]">Monthly Growth</span>
+                            <span class="accent-text font-bold">+12.4%</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-secondary w-full mt-6 py-2 rounded-lg">
+                        View Treasury Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4 border-t border-[#00f0d6]/20 mt-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full accent-gradient flex items-center justify-center">
+                        <i class="fas fa-cube text-black text-sm"></i>
+                    </div>
+                    <span class="text-lg font-bold accent-text">UNITY CHAMBER</span>
+                </div>
+                
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-center text-sm text-[#9fb4c9]">
+                <p>© 2023 UNITY CHAMBER Arena • Hedera Powered • Built to give underdogs a global stage</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Become Member Modal -->
+    <div id="becomeMemberModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-[#00f0d6]/30">
+                <h2 class="text-2xl font-bold">Become a DAO Member</h2>
+                <button class="absolute top-4 right-4 text-[#9fb4c9] hover:text-white" onclick="closeModal('becomeMemberModal')">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <p class="text-[#9fb4c9]">Upgrade your membership to participate in governance and earn rewards.</p>
+                
+                <div class="mt-6 space-y-4">
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Current NFTs</label>
+                        <div class="flex items-center">
+                            <div class="form-input">12 NFTs</div>
+                            <div class="ml-3 text-sm accent-text">
+                                <i class="fas fa-check-circle mr-1"></i> Qualifies for Member tier
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Select Tier</label>
+                        <select class="form-input">
+                            <option>Contributor (1+ NFTs)</option>
+                            <option selected>Member (5+ NFTs)</option>
+                            <option>Patron (15+ NFTs) - Need 3 more NFTs</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Stake Amount</label>
+                        <div class="flex items-center">
+                            <input type="number" class="form-input" value="50">
+                            <span class="ml-3 text-sm">JAMII Tokens</span>
+                        </div>
+                        <p class="text-xs text-[#9fb4c9] mt-2">Staking tokens increases your voting power but locks them for 30 days.</p>
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex space-x-3">
+                    <button class="btn-primary flex-1 py-3 rounded-lg">
+                        Confirm Membership
+                    </button>
+                    <button class="btn-secondary flex-1 py-3 rounded-lg" onclick="closeModal('becomeMemberModal')">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Proposal Modal -->
+    <div id="createProposalModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-[#00f0d6]/30">
+                <h2 class="text-2xl font-bold">Create New Proposal</h2>
+                <button class="absolute top-4 right-4 text-[#9fb4c9] hover:text-white" onclick="closeModal('createProposalModal')">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <p class="text-[#9fb4c9]">Submit a new proposal for DAO consideration and voting.</p>
+                
+                <div class="mt-6 space-y-4">
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Proposal Title</label>
+                        <input type="text" class="form-input" placeholder="Enter proposal title">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Description</label>
+                        <textarea class="form-input" rows="4" placeholder="Describe your proposal in detail"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Category</label>
+                        <select class="form-input">
+                            <option>Treasury Management</option>
+                            <option>Platform Improvements</option>
+                            <option>Artist Relations</option>
+                            <option>Voting System</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-[#9fb4c9] mb-2">Voting Duration</label>
+                        <select class="form-input">
+                            <option>3 days</option>
+                            <option selected>7 days</option>
+                            <option>14 days</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex space-x-3">
+                    <button class="btn-primary flex-1 py-3 rounded-lg">
+                        Submit Proposal
+                    </button>
+                    <button class="btn-secondary flex-1 py-3 rounded-lg" onclick="closeModal('createProposalModal')">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vote Modal -->
+    <div id="voteModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-[#00f0d6]/30">
+                <h2 class="text-2xl font-bold">Cast Your Vote</h2>
+                <button class="absolute top-4 right-4 text-[#9fb4c9] hover:text-white" onclick="closeModal('voteModal')">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <h3 class="font-bold text-lg">Increase Prize Pool Allocation to 60%</h3>
+                <p class="text-sm text-[#9fb4c9] mt-2">Proposed by: CosmicCreator • 2 days ago</p>
+                
+                <div class="mt-6">
+                    <label class="block text-sm text-[#9fb4c9] mb-4">Your Vote</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <button class="vote-option btn-primary py-3 rounded-lg">
+                            <i class="fas fa-thumbs-up mr-2"></i> For
+                        </button>
+                        <button class="vote-option btn-secondary py-3 rounded-lg">
+                            <i class="fas fa-thumbs-down mr-2"></i> Against
+                        </button>
+                        <button class="vote-option btn-secondary py-3 rounded-lg">
+                            <i class="fas fa-minus mr-2"></i> Abstain
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <label class="block text-sm text-[#9fb4c9] mb-2">Voting Power</label>
+                    <div class="flex justify-between items-center">
+                        <span>Available Votes</span>
+                        <span class="font-bold">42</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span>Votes to Cast</span>
+                        <input type="number" class="form-input w-20 text-center" value="5" min="1" max="42">
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex space-x-3">
+                    <button class="btn-primary flex-1 py-3 rounded-lg">
+                        Confirm Vote
+                    </button>
+                    <button class="btn-secondary flex-1 py-3 rounded-lg" onclick="closeModal('voteModal')">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Event listeners
+        document.getElementById('becomeMemberBtn').addEventListener('click', function() {
+            openModal('becomeMemberModal');
+        });
+        
+        document.getElementById('createProposalBtn').addEventListener('click', function() {
+            openModal('createProposalModal');
+        });
+        
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                openModal('voteModal');
+            });
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (event.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+        
+        // Vote option selection
+        document.querySelectorAll('.vote-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.vote-option').forEach(btn => {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-secondary');
+                });
+                this.classList.remove('btn-secondary');
+                this.classList.add('btn-primary');
+            });
+        });
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.fade-in').forEach(element => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>

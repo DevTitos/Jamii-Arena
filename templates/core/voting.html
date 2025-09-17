@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting - NFT Talent Show Arena</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --accent: #00f0d6;
+            --accent-dark: #00c4a9;
+            --dark-bg: #050817;
+            --card-bg: rgba(7, 16, 38, 0.8);
+            --text-primary: #e6eef8;
+            --text-secondary: #9fb4c9;
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+        
+        .tech-border {
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 214, 0.1);
+        }
+        
+        .card-glass {
+            background: rgba(7, 16, 38, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .accent-text {
+            color: var(--accent);
+        }
+        
+        .accent-gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 240, 214, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 240, 214, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 240, 214, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0); }
+        }
+        
+        .glitch {
+            position: relative;
+            animation: glitch 5s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 0 var(--accent); }
+            5% { text-shadow: -2px 2px 0 #ff00ff, 2px -2px 0 #00ffff; }
+            6% { text-shadow: 0 0 0 var(--accent); }
+            100% { text-shadow: 0 0 0 var(--accent); }
+        }
+        
+        .hex-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 214, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 214, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 8px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+        
+        .vote-card {
+            transition: all 0.3s ease;
+        }
+        
+        .vote-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 240, 214, 0.2);
+        }
+        
+        .live-badge {
+            animation: pulse 2s infinite;
+            background: linear-gradient(135deg, #ff3366 0%, #ff3366 100%);
+        }
+        
+        .count-up {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .history-item {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .history-item:hover {
+            border-left-color: var(--accent);
+            background: rgba(0, 240, 214, 0.05);
+        }
+        
+        .real-time-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .vote-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .vote-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .flip-card {
+            perspective: 1000px;
+        }
+        
+        .flip-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-card-front, .flip-card-back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="hex-pattern min-h-screen">
+    <!-- Navigation -->
+    <nav class="w-full bg-[#050817] tech-border border-t-0 border-l-0 border-r-0 py-3 px-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full accent-gradient flex items-center justify-center">
+                    <i class="fas fa-cube text-black"></i>
+                </div>
+                <span class="text-xl font-bold accent-text">UNITY CHAMBER</span>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="text-sm hover:accent-text transition-colors">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Arena
+                </a>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#00f0d6] to-[#007a6c] flex items-center justify-center">
+                        <i class="fas fa-user-astronaut text-white text-sm"></i>
+                    </div>
+                    <span class="text-sm hidden md:block">CosmicCollector</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-8 px-4">
+        <!-- Header -->
+        <div class="text-center mb-10 fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold glitch accent-text">Live Voting Arena</h1>
+            <p class="text-[#9fb4c9] mt-3 max-w-2xl mx-auto">Cast your votes, track results in real-time, and shape the future of digital talent</p>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 fade-in">
+            <div class="card-glass p-5 text-center">
+                <div class="text-2xl font-bold accent-text count-up" id="total-votes">2,458</div>
+                <div class="text-sm text-[#9fb4c9] mt-1">Total Votes Cast</div>
+            </div>
+            <div class="card-glass p-5 text-center">
+                <div class="text-2xl font-bold accent-text count-up" id="active-voters">1,207</div>
+                <div class="text-sm text-[#9fb4c9] mt-1">Active Voters</div>
+            </div>
+            <div class="card-glass p-5 text-center">
+                <div class="text-2xl font-bold accent-text" id="time-remaining">06:24:33</div>
+                <div class="text-sm text-[#9fb4c9] mt-1">Time Remaining</div>
+            </div>
+            <div class="card-glass p-5 text-center">
+                <div class="text-2xl font-bold accent-text" id="your-votes">24</div>
+                <div class="text-sm text-[#9fb4c9] mt-1">Your Vote Power</div>
+            </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Current Voting -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Current Contest -->
+                <div class="card-glass p-6 rounded-xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold">Season 2 Finals</h2>
+                            <p class="text-[#9fb4c9]">Vote for your favorite artist to win the grand prize</p>
+                        </div>
+                        <div class="flex items-center space-x-2 live-badge px-3 py-1 rounded-full text-xs">
+                            <div class="real-time-indicator"></div>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <!-- Artist Card -->
+                        <div class="vote-card card-glass p-5 rounded-xl">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#00f0d6] to-[#007a6c] flex items-center justify-center">
+                                        <i class="fas fa-user-astronaut text-white text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg">Cosmic Creator</h3>
+                                        <p class="text-sm text-[#9fb4c9]">Digital Artist • 12 NFTs</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold accent-text count-up" data-target="1243">1,243</div>
+                                        <div class="text-xs text-[#9fb4c9]">Votes</div>
+                                    </div>
+                                    <button class="vote-btn btn-primary px-4 py-2 rounded-lg">
+                                        Vote Now
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 45%" id="cosmic-progress"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Artist Card -->
+                        <div class="vote-card card-glass p-5 rounded-xl">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#0052cc] to-[#00f0d6] flex items-center justify-center">
+                                        <i class="fas fa-robot text-white text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg">Neural Networks</h3>
+                                        <p class="text-sm text-[#9fb4c9]">AI Artist • 8 NFTs</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold accent-text count-up" data-target="987">987</div>
+                                        <div class="text-xs text-[#9fb4c9]">Votes</div>
+                                    </div>
+                                    <button class="vote-btn btn-primary px-4 py-2 rounded-lg">
+                                        Vote Now
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 36%" id="neural-progress"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Artist Card -->
+                        <div class="vote-card card-glass p-5 rounded-xl">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#cc00ff] to-[#00f0d6] flex items-center justify-center">
+                                        <i class="fas fa-paint-brush text-white text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg">Digital Painter</h3>
+                                        <p class="text-sm text-[#9fb4c9]">Traditional Digital • 15 NFTs</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold accent-text count-up" data-target="876">876</div>
+                                        <div class="text-xs text-[#9fb4c9]">Votes</div>
+                                    </div>
+                                    <button class="vote-btn btn-primary px-4 py-2 rounded-lg">
+                                        Vote Now
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 32%" id="painter-progress"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 text-xs text-[#9fb4c9]">
+                        <i class="fas fa-info-circle mr-1"></i> Each NFT ticket gives you 1 vote. VIP tickets provide additional voting power.
+                    </div>
+                </div>
+                
+                <!-- How Voting Works -->
+                <div class="card-glass p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold mb-6">How Voting Works</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center mx-auto">
+                                <i class="fas fa-ticket-alt text-black text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold mt-4">Acquire NFT Tickets</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-2">Purchase or earn NFT tickets that grant voting rights</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center mx-auto">
+                                <i class="fas fa-vote-yea text-black text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold mt-4">Cast Your Votes</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-2">Support your favorite artists by allocating votes to them</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center mx-auto">
+                                <i class="fas fa-award text-black text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold mt-4">Earn Rewards</h3>
+                            <p class="text-sm text-[#9fb4c9] mt-2">Receive rewards for participation and for backing winning artists</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <!-- Your Voting Power -->
+                <div class="card-glass p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold mb-4">Your Voting Power</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#9fb4c9]">Available Votes</span>
+                            <span class="font-bold accent-text">24</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#9fb4c9]">Votes Used This Season</span>
+                            <span class="font-bold">12</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#9fb4c9]">VIP Multiplier</span>
+                            <span class="font-bold">2x</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-[#9fb4c9] mt-1">
+                            <span>12 used</span>
+                            <span>12 available</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary w-full mt-6 py-3 rounded-lg">
+                        <i class="fas fa-ticket-alt mr-2"></i> Get More Votes
+                    </button>
+                </div>
+                
+                <!-- Voting History -->
+                <div class="card-glass p-6 rounded-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Voting History</h2>
+                        <a href="#" class="text-sm accent-text hover:underline">View All</a>
+                    </div>
+                    
+                    <div class="space-y-4 max-h-96 overflow-y-auto pr-2">
+                        <!-- History Item -->
+                        <div class="history-item card-glass p-4 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold">Cosmic Creator</h3>
+                                    <p class="text-xs text-[#9fb4c9] mt-1">Season 2 Finals • 5 votes</p>
+                                </div>
+                                <span class="text-xs text-[#9fb4c9]">2 hours ago</span>
+                            </div>
+                        </div>
+                        
+                        <!-- History Item -->
+                        <div class="history-item card-glass p-4 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold">Neural Networks</h3>
+                                    <p class="text-xs text-[#9fb4c9] mt-1">Season 2 Finals • 3 votes</p>
+                                </div>
+                                <span class="text-xs text-[#9fb4c9]">1 day ago</span>
+                            </div>
+                        </div>
+                        
+                        <!-- History Item -->
+                        <div class="history-item card-glass p-4 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold">Digital Painter</h3>
+                                    <p class="text-xs text-[#9fb4c9] mt-1">Season 2 Finals • 4 votes</p>
+                                </div>
+                                <span class="text-xs text-[#9fb4c9]">2 days ago</span>
+                            </div>
+                        </div>
+                        
+                        <!-- History Item -->
+                        <div class="history-item card-glass p-4 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold">Cosmic Creator</h3>
+                                    <p class="text-xs text-[#9fb4c9] mt-1">Season 2 Semi-Finals • 6 votes</p>
+                                </div>
+                                <span class="text-xs text-[#9fb4c9]">1 week ago</span>
+                            </div>
+                        </div>
+                        
+                        <!-- History Item -->
+                        <div class="history-item card-glass p-4 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold">Pixel Wizard</h3>
+                                    <p class="text-xs text-[#9fb4c9] mt-1">Season 2 Quarter-Finals • 2 votes</p>
+                                </div>
+                                <span class="text-xs text-[#9fb4c9]">2 weeks ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-Time Activity -->
+                <div class="card-glass p-6 rounded-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Real-Time Activity</h2>
+                        <div class="flex items-center space-x-1 text-xs text-[#9fb4c9]">
+                            <div class="real-time-indicator"></div>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3" id="activity-feed">
+                        <div class="flex items-start space-x-2 text-sm">
+                            <div class="bg-[#071026] p-1 rounded mt-0.5">
+                                <i class="fas fa-vote-yea accent-text"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold">CryptoCollector</span> voted for <span class="accent-text">Cosmic Creator</span>
+                                <div class="text-xs text-[#9fb4c9]">just now</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-2 text-sm">
+                            <div class="bg-[#071026] p-1 rounded mt-0.5">
+                                <i class="fas fa-ticket-alt accent-text"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold">NFTFanatic</span> purchased a VIP ticket
+                                <div class="text-xs text-[#9fb4c9]">2 minutes ago</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-2 text-sm">
+                            <div class="bg-[#071026] p-1 rounded mt-0.5">
+                                <i class="fas fa-vote-yea accent-text"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold">DigitalDreamer</span> voted for <span class="accent-text">Neural Networks</span>
+                                <div class="text-xs text-[#9fb4c9]">5 minutes ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4 border-t border-[#00f0d6]/20 mt-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full accent-gradient flex items-center justify-center">
+                        <i class="fas fa-cube text-black text-sm"></i>
+                    </div>
+                    <span class="text-lg font-bold accent-text">UNITY CHAMBER</span>
+                </div>
+                
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-center text-sm text-[#9fb4c9]">
+                <p>© 2023 UNITY CHAMBER Arena • Hedera Powered • Built to give underdogs a global stage</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simulated real-time data updates
+        function updateVotingData() {
+            // Update vote counts with random increments
+            const voteElements = document.querySelectorAll('.count-up');
+            voteElements.forEach(el => {
+                if (el.id !== 'total-votes' && el.id !== 'active-voters' && el.id !== 'time-remaining' && el.id !== 'your-votes') {
+                    const current = parseInt(el.textContent.replace(/,/g, ''));
+                    const increment = Math.floor(Math.random() * 5) + 1;
+                    const newValue = current + increment;
+                    el.textContent = newValue.toLocaleString();
+                    el.setAttribute('data-target', newValue);
+                    
+                    // Update progress bars
+                    updateProgressBars();
+                }
+            });
+            
+            // Update total votes
+            const totalVotesEl = document.getElementById('total-votes');
+            const totalVotes = parseInt(totalVotesEl.textContent.replace(/,/g, ''));
+            totalVotesEl.textContent = (totalVotes + 3).toLocaleString();
+            
+            // Update active voters occasionally
+            if (Math.random() > 0.7) {
+                const activeVotersEl = document.getElementById('active-voters');
+                const activeVoters = parseInt(activeVotersEl.textContent.replace(/,/g, ''));
+                activeVotersEl.textContent = (activeVoters + 1).toLocaleString();
+            }
+            
+            // Add new activity items
+            addRandomActivity();
+        }
+        
+        // Update progress bars based on current vote counts
+        function updateProgressBars() {
+            const cosmicVotes = parseInt(document.querySelector('[data-target="1243"]').textContent.replace(/,/g, ''));
+            const neuralVotes = parseInt(document.querySelector('[data-target="987"]').textContent.replace(/,/g, ''));
+            const painterVotes = parseInt(document.querySelector('[data-target="876"]').textContent.replace(/,/g, ''));
+            
+            const totalVotes = cosmicVotes + neuralVotes + painterVotes;
+            
+            document.getElementById('cosmic-progress').style.width = `${(cosmicVotes / totalVotes) * 100}%`;
+            document.getElementById('neural-progress').style.width = `${(neuralVotes / totalVotes) * 100}%`;
+            document.getElementById('painter-progress').style.width = `${(painterVotes / totalVotes) * 100}%`;
+        }
+        
+        // Add random activity to the feed
+        function addRandomActivity() {
+            if (Math.random() > 0.5) {
+                const activities = [
+                    { action: 'voted for', target: 'Cosmic Creator', icon: 'fa-vote-yea' },
+                    { action: 'voted for', target: 'Neural Networks', icon: 'fa-vote-yea' },
+                    { action: 'voted for', target: 'Digital Painter', icon: 'fa-vote-yea' },
+                    { action: 'purchased a', target: 'VIP ticket', icon: 'fa-ticket-alt' },
+                    { action: 'purchased a', target: 'standard ticket', icon: 'fa-ticket-alt' },
+                    { action: 'staked', target: '50 JAMII tokens', icon: 'fa-coins' }
+                ];
+                
+                const users = ['CryptoCollector', 'NFTFanatic', 'DigitalDreamer', 'BlockchainBuddy', 'Web3Wizard', 'MetaverseMaster'];
+                
+                const activity = activities[Math.floor(Math.random() * activities.length)];
+                const user = users[Math.floor(Math.random() * users.length)];
+                
+                const activityFeed = document.getElementById('activity-feed');
+                const newActivity = document.createElement('div');
+                newActivity.className = 'flex items-start space-x-2 text-sm';
+                newActivity.innerHTML = `
+                    <div class="bg-[#071026] p-1 rounded mt-0.5">
+                        <i class="fas ${activity.icon} accent-text"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold">${user}</span> ${activity.action} <span class="accent-text">${activity.target}</span>
+                        <div class="text-xs text-[#9fb4c9]">just now</div>
+                    </div>
+                `;
+                
+                activityFeed.insertBefore(newActivity, activityFeed.firstChild);
+                
+                // Remove oldest activity if more than 5
+                if (activityFeed.children.length > 5) {
+                    activityFeed.removeChild(activityFeed.lastChild);
+                }
+            }
+        }
+        
+        // Countdown timer
+        function updateCountdown() {
+            const countdownEl = document.getElementById('time-remaining');
+            let time = countdownEl.textContent.split(':');
+            let hours = parseInt(time[0]);
+            let minutes = parseInt(time[1]);
+            let seconds = parseInt(time[2]);
+            
+            seconds--;
+            
+            if (seconds < 0) {
+                seconds = 59;
+                minutes--;
+                
+                if (minutes < 0) {
+                    minutes = 59;
+                    hours--;
+                    
+                    if (hours < 0) {
+                        hours = 0;
+                        minutes = 0;
+                        seconds = 0;
+                    }
+                }
+            }
+            
+            countdownEl.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Initialize and set up intervals
+        setInterval(updateVotingData, 3000);
+        setInterval(updateCountdown, 1000);
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.fade-in').forEach(element => {
+            observer.observe(element);
+        });
+        
+        // Vote button functionality
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const artist = this.closest('.vote-card').querySelector('h3').textContent;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Voting...';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-check"></i> Voted!';
+                    this.classList.remove('btn-primary');
+                    this.classList.add('btn-secondary');
+                    
+                    // Add to voting history
+                    const historyContainer = document.querySelector('.space-y-4.max-h-96');
+                    const newHistoryItem = document.createElement('div');
+                    newHistoryItem.className = 'history-item card-glass p-4 rounded-lg';
+                    newHistoryItem.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold">${artist}</h3>
+                                <p class="text-xs text-[#9fb4c9] mt-1">Season 2 Finals • 1 vote</p>
+                            </div>
+                            <span class="text-xs text-[#9fb4c9]">just now</span>
+                        </div>
+                    `;
+                    
+                    historyContainer.insertBefore(newHistoryItem, historyContainer.firstChild);
+                    
+                    // Update voting power
+                    const yourVotesEl = document.getElementById('your-votes');
+                    const currentVotes = parseInt(yourVotesEl.textContent);
+                    yourVotesEl.textContent = currentVotes - 1;
+                    
+                    // Update progress bar
+                    const progressBar = document.querySelector('.progress-fill');
+                    const currentWidth = parseInt(progressBar.style.width);
+                    progressBar.style.width = `${currentWidth - 4.16}%`;
+                    
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>

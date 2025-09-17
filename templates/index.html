@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Talent Show Arena — Mint • Vote • Own</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --accent: #00f0d6;
+            --accent-dark: #00c4a9;
+            --dark-bg: #050817;
+            --card-bg: rgba(7, 16, 38, 0.8);
+            --text-primary: #e6eef8;
+            --text-secondary: #9fb4c9;
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+        
+        .tech-border {
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 214, 0.1);
+        }
+        
+        .card-glass {
+            background: rgba(7, 16, 38, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .accent-text {
+            color: var(--accent);
+        }
+        
+        .accent-gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 240, 214, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 240, 214, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 240, 214, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0); }
+        }
+        
+        .glitch {
+            position: relative;
+            animation: glitch 5s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 0 var(--accent); }
+            5% { text-shadow: -2px 2px 0 #ff00ff, 2px -2px 0 #00ffff; }
+            6% { text-shadow: 0 0 0 var(--accent); }
+            100% { text-shadow: 0 0 0 var(--accent); }
+        }
+        
+        .hex-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 214, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 214, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .loading-bar {
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 50%, var(--accent) 100%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite linear;
+            border-radius: 4px;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 240, 214, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu {
+                animation: slideDown 0.5s ease-out;
+            }
+            
+            @keyframes slideDown {
+                from { opacity: 0; transform: translateY(-20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+</head>
+<body class="hex-pattern min-h-screen">
+    <!-- Loading screen -->
+    <div id="loading" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050817] transition-opacity duration-500">
+        <div class="text-4xl font-bold accent-text glitch mb-6">UNITY CHAMBER</div>
+        <div class="w-64 loading-bar"></div>
+        <div class="mt-4 text-sm text-[#9fb4c9]">Loading immersive experience...</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 bg-[#050817] tech-border border-t-0 border-l-0 border-r-0 py-3 px-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full accent-gradient flex items-center justify-center">
+                    <i class="fas fa-cube text-black"></i>
+                </div>
+                <span class="text-xl font-bold accent-text">UNITY CHAMBER</span>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#about" class="text-sm hover:accent-text transition-colors">About</a>
+                <a href="#artists" class="text-sm hover:accent-text transition-colors">Artists</a>
+                <a href="#audience" class="text-sm hover:accent-text transition-colors">Audience</a>
+                <a href="#voting" class="text-sm hover:accent-text transition-colors">Voting</a>
+                <a href="#dao" class="text-sm hover:accent-text transition-colors">DAO</a>
+                <a href="{% url 'login' %}" style="text-decoration: none;"><button class="btn-primary px-5 py-2 rounded-full text-sm">Login</button></a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobileMenuButton" class="md:hidden text-[#9fb4c9] hover:text-white">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="mobile-menu hidden md:hidden mt-4 py-4 border-t border-[#00f0d6]/20">
+            <div class="flex flex-col space-y-4">
+                <a href="#about" class="text-sm hover:accent-text transition-colors">About</a>
+                <a href="#artists" class="text-sm hover:accent-text transition-colors">Artists</a>
+                <a href="#audience" class="text-sm hover:accent-text transition-colors">Audience</a>
+                <a href="#voting" class="text-sm hover:accent-text transition-colors">Voting</a>
+                <a href="#dao" class="text-sm hover:accent-text transition-colors">DAO</a>
+                <a href="{% url 'login' %}" style="text-decoration: none;"><button class="btn-primary px-5 py-2 rounded-full text-sm">Login</button></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-28 pb-16 px-4">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-bold glitch accent-text leading-tight fade-in">
+                NFT TALENT SHOW ARENA
+            </h1>
+            <p class="mt-6 text-lg md:text-xl text-[#9fb4c9] max-w-3xl mx-auto fade-in">
+                A decentralized arena where artists perform, audiences vote with NFTs, and winners earn on-chain funding — transparent, fair, and global.
+            </p>
+            
+            <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 fade-in">
+                <button class="btn-primary px-8 py-4 rounded-full text-lg font-semibold flex items-center space-x-2">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>Mint NFT Ticket</span>
+                </button>
+                <button class="btn-secondary px-8 py-4 rounded-full text-lg font-semibold flex items-center space-x-2">
+                    <i class="fas fa-vote-yea"></i>
+                    <span>View Live Voting</span>
+                </button>
+            </div>
+            
+            <!-- Stats Section -->
+            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto fade-in">
+                <div class="stats-card card-glass p-4 text-center">
+                    <div class="text-2xl md:text-3xl font-bold accent-text">1,820</div>
+                    <div class="text-sm text-[#9fb4c9] mt-1">Tickets Sold</div>
+                </div>
+                <div class="stats-card card-glass p-4 text-center">
+                    <div class="text-2xl md:text-3xl font-bold accent-text">$15.4K</div>
+                    <div class="text-sm text-[#9fb4c9] mt-1">Prize Pool</div>
+                </div>
+                <div class="stats-card card-glass p-4 text-center">
+                    <div class="text-2xl md:text-3xl font-bold accent-text">42</div>
+                    <div class="text-sm text-[#9fb4c9] mt-1">Artists</div>
+                </div>
+                <div class="stats-card card-glass p-4 text-center">
+                    <div class="text-2xl md:text-3xl font-bold accent-text">12H</div>
+                    <div class="text-sm text-[#9fb4c9] mt-1">Until Voting Ends</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Featured Artists Section -->
+    <section id="artists" class="py-16 px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center accent-text">Featured Artists</h2>
+            <p class="text-center text-[#9fb4c9] mt-3 max-w-2xl mx-auto">Discover talented creators from around the world showcasing their unique digital art</p>
+            
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Artist Card -->
+                <div class="card-glass p-6 rounded-xl fade-in">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center">
+                            <i class="fas fa-user-astronaut text-black text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Cosmic Creator</h3>
+                            <p class="text-sm text-[#9fb4c9]">Digital Artist</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 h-48 bg-gradient-to-br from-[#00f0d6] to-[#007a6c] rounded-lg flex items-center justify-center">
+                        <i class="fas fa-palette text-5xl text-white"></i>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#9fb4c9]">Current Votes</p>
+                            <p class="font-bold accent-text">1,243</p>
+                        </div>
+                        <button class="btn-secondary px-4 py-2 rounded-full text-sm">
+                            Vote Now
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Artist Card -->
+                <div class="card-glass p-6 rounded-xl fade-in">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center">
+                            <i class="fas fa-robot text-black text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Neural Networks</h3>
+                            <p class="text-sm text-[#9fb4c9]">AI Artist</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 h-48 bg-gradient-to-br from-[#0052cc] to-[#00f0d6] rounded-lg flex items-center justify-center">
+                        <i class="fas fa-brain text-5xl text-white"></i>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#9fb4c9]">Current Votes</p>
+                            <p class="font-bold accent-text">987</p>
+                        </div>
+                        <button class="btn-secondary px-4 py-2 rounded-full text-sm">
+                            Vote Now
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Artist Card -->
+                <div class="card-glass p-6 rounded-xl fade-in">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center">
+                            <i class="fas fa-feather-alt text-black text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Digital Painter</h3>
+                            <p class="text-sm text-[#9fb4c9]">Traditional Digital</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 h-48 bg-gradient-to-br from-[#cc00ff] to-[#00f0d6] rounded-lg flex items-center justify-center">
+                        <i class="fas fa-paint-brush text-5xl text-white"></i>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#9fb4c9]">Current Votes</p>
+                            <p class="font-bold accent-text">1,876</p>
+                        </div>
+                        <button class="btn-secondary px-4 py-2 rounded-full text-sm">
+                            Vote Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10">
+                <button class="btn-secondary px-6 py-3 rounded-full">
+                    View All Artists
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="about" class="py-16 px-4 bg-gradient-to-b from-[#050817] to-[#071026]">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center accent-text">How It Works</h2>
+            <p class="text-center text-[#9fb4c9] mt-3 max-w-2xl mx-auto">A seamless process from talent discovery to on-chain rewards</p>
+            
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="text-center fade-in">
+                    <div class="w-20 h-20 rounded-full accent-gradient flex items-center justify-center mx-auto pulse">
+                        <i class="fas fa-ticket-alt text-2xl text-black"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mt-6">Mint NFT Tickets</h3>
+                    <p class="text-[#9fb4c9] mt-3">Acquire limited edition NFT tickets to participate in voting and access exclusive content</p>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="text-center fade-in">
+                    <div class="w-20 h-20 rounded-full accent-gradient flex items-center justify-center mx-auto pulse">
+                        <i class="fas fa-vote-yea text-2xl text-black"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mt-6">Vote for Talent</h3>
+                    <p class="text-[#9fb4c9] mt-3">Support your favorite artists by casting votes using your NFT tickets on the Hedera network</p>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="text-center fade-in">
+                    <div class="w-20 h-20 rounded-full accent-gradient flex items-center justify-center mx-auto pulse">
+                        <i class="fas fa-trophy text-2xl text-black"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mt-6">Earn Rewards</h3>
+                    <p class="text-[#9fb4c9] mt-3">Winners receive on-chain funding, and voters get exclusive NFT rewards and discounts</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Voting Section -->
+    <section id="voting" class="py-16 px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center accent-text">Live Voting</h2>
+            <p class="text-center text-[#9fb4c9] mt-3">Real-time results powered by Hedera Hashgraph</p>
+            
+            <div class="mt-12 card-glass p-6 rounded-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Current Standings</h3>
+                    <div class="text-sm text-[#9fb4c9]">Updated 2 minutes ago</div>
+                </div>
+                
+                <!-- Voting Progress Bars -->
+                <div class="space-y-6">
+                    <!-- Artist 1 -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium">Cosmic Creator</span>
+                            <span class="accent-text font-bold">1,243 votes</span>
+                        </div>
+                        <div class="w-full bg-[#071026] rounded-full h-3">
+                            <div class="accent-gradient h-3 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Artist 2 -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium">Neural Networks</span>
+                            <span class="accent-text font-bold">987 votes</span>
+                        </div>
+                        <div class="w-full bg-[#071026] rounded-full h-3">
+                            <div class="accent-gradient h-3 rounded-full" style="width: 52%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Artist 3 -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium">Digital Painter</span>
+                            <span class="accent-text font-bold">876 votes</span>
+                        </div>
+                        <div class="w-full bg-[#071026] rounded-full h-3">
+                            <div class="accent-gradient h-3 rounded-full" style="width: 46%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button class="btn-primary px-6 py-3 rounded-full">
+                        <i class="fas fa-vote-yea mr-2"></i>
+                        Cast Your Vote
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DAO Section -->
+    <section id="dao" class="py-16 px-4 bg-gradient-to-b from-[#071026] to-[#050817]">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center accent-text">Join the DAO</h2>
+            <p class="text-center text-[#9fb4c9] mt-3">Shape the future of the NFT Talent Show through decentralized governance</p>
+            
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card-glass p-8 rounded-xl fade-in">
+                    <h3 class="text-2xl font-bold accent-text">DAO Benefits</h3>
+                    <ul class="mt-6 space-y-4">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle accent-text mt-1 mr-3"></i>
+                            <span>Vote on platform upgrades and feature proposals</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle accent-text mt-1 mr-3"></i>
+                            <span>Receive a share of platform revenue</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle accent-text mt-1 mr-3"></i>
+                            <span>Early access to new NFT drops and features</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle accent-text mt-1 mr-3"></i>
+                            <span>Influence prize pool distribution and rules</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card-glass p-8 rounded-xl fade-in">
+                    <h3 class="text-2xl font-bold accent-text">DAO Statistics</h3>
+                    <div class="mt-6 grid grid-cols-2 gap-4">
+                        <div class="bg-[#071026] p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold accent-text">42</div>
+                            <div class="text-sm text-[#9fb4c9] mt-1">Members</div>
+                        </div>
+                        <div class="bg-[#071026] p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold accent-text">18</div>
+                            <div class="text-sm text-[#9fb4c9] mt-1">Proposals</div>
+                        </div>
+                        <div class="bg-[#071026] p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold accent-text">$42K</div>
+                            <div class="text-sm text-[#9fb4c9] mt-1">Treasury</div>
+                        </div>
+                        <div class="bg-[#071026] p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold accent-text">6</div>
+                            <div class="text-sm text-[#9fb4c9] mt-1">Live Votes</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <button class="btn-primary w-full py-3 rounded-full">
+                            Join the DAO
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-4 border-t border-[#00f0d6]/20">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 rounded-full accent-gradient flex items-center justify-center">
+                        <i class="fas fa-cube text-black"></i>
+                    </div>
+                    <span class="text-xl font-bold accent-text">UNITY CHAMBER</span>
+                </div>
+                
+                <div class="flex space-x-6 mt-6 md:mt-0">
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center text-sm text-[#9fb4c9]">
+                <p>© 2023 UNITY CHAMBER Arena • Hedera Powered • Built to give underdogs a global stage</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Hide loading screen when page is loaded
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loading').style.opacity = '0';
+                setTimeout(function() {
+                    document.getElementById('loading').style.display = 'none';
+                }, 500);
+            }, 1000);
+        });
+        
+        // Mobile menu toggle
+        document.getElementById('mobileMenuButton').addEventListener('click', function() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        });
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.fade-in').forEach(element => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>

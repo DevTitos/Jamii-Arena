@@ -145,6 +145,7 @@ env.bak/
 venv.bak/
 myenv/
 examples/
+plan.txt
 
 # Spyder project settings
 .spyderproject

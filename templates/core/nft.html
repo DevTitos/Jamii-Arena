@@ -1,0 +1,641 @@
+ {% extends 'base.html' %}
+ {% block title %}NFT Marketplace{% endblock title %}
+ {% block style %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tech-border {
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 214, 0.1);
+        }
+        
+        .card-glass {
+            background: rgba(7, 16, 38, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .accent-text {
+            color: var(--accent);
+        }
+        
+        .accent-gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 240, 214, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 240, 214, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 240, 214, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0); }
+        }
+        
+        .glitch {
+            position: relative;
+            animation: glitch 5s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 0 var(--accent); }
+            5% { text-shadow: -2px 2px 0 #ff00ff, 2px -2px 0 #00ffff; }
+            6% { text-shadow: 0 0 0 var(--accent); }
+            100% { text-shadow: 0 0 0 var(--accent); }
+        }
+        
+        .hex-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 214, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 214, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .nft-card {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .nft-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 240, 214, 0.2);
+        }
+        
+        .nft-image {
+            transition: all 0.5s ease;
+        }
+        
+        .nft-card:hover .nft-image {
+            transform: scale(1.05);
+        }
+        
+        .tab-button {
+            transition: all 0.3s ease;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .tab-button.active {
+            background: rgba(0, 240, 214, 0.2);
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .filter-pill {
+            transition: all 0.3s ease;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+        
+        .filter-pill.active {
+            background: var(--accent);
+            color: #000;
+        }
+        
+        .filter-pill:hover {
+            background: rgba(0, 240, 214, 0.3);
+        }
+        
+        .rarity-common {
+            border-left: 3px solid #9fb4c9;
+        }
+        
+        .rarity-rare {
+            border-left: 3px solid #00f0d6;
+        }
+        
+        .rarity-epic {
+            border-left: 3px solid #cc00ff;
+        }
+        
+        .rarity-legendary {
+            border-left: 3px solid #ff9900;
+        }
+    </style>
+{% endblock style %}
+{% block content %}
+        <div class="text-center mb-10 fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold glitch accent-text">NFT Marketplace</h1>
+            <p class="text-[#9fb4c9] mt-3 max-w-2xl mx-auto">Discover exclusive NFT tickets, vote for your favorite artists, and manage your collection</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex justify-center mb-8">
+            <div class="card-glass p-1 flex">
+                <div class="tab-button active" id="marketplace-tab">
+                    <i class="fas fa-store mr-2"></i> Marketplace
+                </div>
+                <div class="tab-button" id="my-tickets-tab">
+                    <i class="fas fa-ticket-alt mr-2"></i> My Tickets
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card-glass p-5 mb-8 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <h3 class="text-lg font-bold">Filters</h3>
+                
+                <div class="flex flex-wrap gap-2">
+                    <div class="filter-pill active">All</div>
+                    <div class="filter-pill">Ticket Passes</div>
+                </div>
+                
+                <div class="relative">
+                    <input type="text" placeholder="Search NFTs..." class="form-input w-full md:w-64 px-4 py-2 rounded-lg bg-[#071026] border border-[#00f0d6]/30 text-sm">
+                    <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9fb4c9]"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketplace Section -->
+        <div id="marketplace-section" class="fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Featured NFT Tickets</h2>
+                <div class="text-sm text-[#9fb4c9]">NFT documentary</div>
+            </div>
+
+
+            <!-- Collection Summary Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+    {% for collection in collections %}
+    <div class="bg-[#071026] p-4 rounded-lg border border-[#1e2b45]">
+        <h3 class="font-semibold text-lg mb-2">{{ collection.get_nft_type_display }}</h3>
+        <div class="flex justify-between items-center mb-3">
+            <span class="text-sm text-[#9fb4c9]">Supply</span>
+            <span class="font-bold {% if collection.is_sold_out %}text-red-400{% else %}text-green-400{% endif %}">
+                {{ collection.current_supply }} / {{ collection.max_supply }}
+            </span>
+        </div>
+        <div class="w-full bg-[#1e2b45] rounded-full h-2 mb-2">
+            <div class="bg-gradient-to-r from-[#00f0d6] to-[#007a6c] h-2 rounded-full" 
+                 style="width: {% widthratio collection.current_supply collection.max_supply 100 %}%"></div>
+        </div>
+        {% if collection.is_sold_out %}
+        <div class="text-red-400 text-sm font-semibold text-center">SOLD OUT</div>
+        {% else %}
+        <div class="text-green-400 text-sm font-semibold text-center">
+            {{ collection.available_count }} Available
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Available NFTs Grid -->
+<h2 class="text-2xl font-bold mb-6">Available NFTs</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {% for nft in nfts %}
+    <div class="nft-card card-glass rounded-xl overflow-hidden rarity-{{ nft.collection.get_rarity }}">
+        <div class="h-48 bg-gradient-to-br {{ nft.collection.get_gradient }} relative overflow-hidden">
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i class="fas {{ nft.collection.get_icon }} text-white text-5xl"></i>
+            </div>
+            <!-- Display supply info on each card -->
+            <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                #{{ nft.serial_number }}/{{ nft.collection.max_supply }}
+            </div>
+            <div class="absolute top-3 left-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                <i class="fas fa-vote-yea mr-1"></i> {{ nft.collection.get_votes }}
+            </div>
+        </div>
+        <div class="p-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h4 class="font-semibold">{{ nft.collection.get_title }}</h4>
+                    <p class="text-xs text-[#9fb4c9] mt-1">{{ nft.collection.get_subtitle }}</p>
+                </div>
+                <div class="text-xs bg-[#071026] px-2 py-1 rounded">
+                    {{ nft.collection.get_rarity_display }}
+                </div>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+                <div>
+                    <p class="text-xs text-[#9fb4c9]">Price</p>
+                    <p class="font-bold accent-text">{{ nft.price }} HBAR</p>
+                </div>
+                <button class="btn-primary px-3 py-1 rounded-lg text-sm buy-button"
+                        data-nft-type="{{ nft.collection.nft_type }}"
+                        data-serial="{{ nft.serial_number }}"
+                        {% if nft.collection.is_sold_out or not nft.is_available %}disabled{% endif %}>
+                        {% if nft.collection.is_sold_out %}Sold Out
+                        {% elif not nft.is_available %}Unavailable
+                        {% else %}Buy Now
+                        {% endif %}
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full text-center py-12">
+        <p class="text-[#9fb4c9]">No NFTs available for purchase.</p>
+    </div>
+    {% endfor %}
+</div>
+
+
+<!--
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+            </div>
+            
+            <div class="text-center mt-10">
+                <button class="btn-secondary px-6 py-3 rounded-lg">
+                    <i class="fas fa-redo mr-2"></i> Load More NFTs
+                </button>
+            </div>
+        </div>
+-->
+
+        <!-- My Tickets Section -->
+        <div id="my-tickets-section" class="hidden fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">My NFT Tickets</h2>
+                <div class="text-sm text-[#9fb4c9]">12 NFTs in collection</div>
+            </div>
+            
+            <!-- Collection Stats -->
+            <div class="card-glass p-5 mb-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold accent-text">12</div>
+                        <div class="text-sm text-[#9fb4c9]">Total Tickets</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold accent-text">42</div>
+                        <div class="text-sm text-[#9fb4c9]">Voting Power</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold accent-text">3</div>
+                        <div class="text-sm text-[#9fb4c9]">Rare Tickets</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold accent-text">1</div>
+                        <div class="text-sm text-[#9fb4c9]">Legendary</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Owned NFT Card -->
+                <div class="nft-card card-glass rounded-xl overflow-hidden rarity-rare">
+                                    <div class="h-48 bg-gradient-to-br from-[#00f0d6] to-[#007a6c] relative overflow-hidden">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <i class="fas fa-ticket-alt text-white text-5xl"></i>
+                                        </div>
+                                        <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                                            Rare
+                                        </div>
+                                        <div class="absolute top-3 left-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                                            <i class="fas fa-vote-yea mr-1"></i> 5 Votes
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-semibold">Golden Access Pass</h4>
+                                                <p class="text-xs text-[#9fb4c9] mt-1">Season 2 • VIP Ticket</p>
+                                            </div>
+                                            <div class="text-xs bg-[#071026] px-2 py-1 rounded">#042</div>
+                                        </div>
+                                        <div class="flex justify-between items-center mt-4">
+                                            <div>
+                                                <p class="text-xs text-[#9fb4c9]">Owned</p>
+                                                <p class="text-xs accent-text">3 days ago</p>
+                                            </div>
+                                            <button class="btn-secondary px-3 py-1 rounded-lg text-sm">
+                                                Use Votes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                
+                <!-- Owned NFT Card -->
+                <div class="nft-card card-glass rounded-xl overflow-hidden rarity-common">
+                                    <div class="h-48 bg-gradient-to-br from-[#0052cc] to-[#00f0d6] relative overflow-hidden">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <i class="fas fa-music text-white text-5xl"></i>
+                                        </div>
+                                        <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                                            Common
+                                        </div>
+                                        <div class="absolute top-3 left-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                                            <i class="fas fa-vote-yea mr-1"></i> 1 Vote
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-semibold">General Admission</h4>
+                                                <p class="text-xs text-[#9fb4c9] mt-1">Season 2 • Standard</p>
+                                            </div>
+                                            <div class="text-xs bg-[#071026] px-2 py-1 rounded">#103</div>
+                                        </div>
+                                        <div class="flex justify-between items-center mt-4">
+                                            <div>
+                                                <p class="text-xs text-[#9fb4c9]">Owned</p>
+                                                <p class="text-xs accent-text">1 week ago</p>
+                                            </div>
+                                            <button class="btn-secondary px-3 py-1 rounded-lg text-sm">
+                                                Use Votes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                
+                <!-- Owned NFT Card -->
+                <div class="nft-card card-glass rounded-xl overflow-hidden rarity-legendary">
+                                    <div class="h-48 bg-gradient-to-br from-[#ff9900] to-[#00f0d6] relative overflow-hidden">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <i class="fas fa-gem text-white text-5xl"></i>
+                                        </div>
+                                        <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                                            Legendary
+                                        </div>
+                                        <div class="absolute top-3 left-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                                            <i class="fas fa-vote-yea mr-1"></i> 20 Votes
+                                        </div>
+                                        <div class="absolute bottom-3 left-3 bg-[#cc00ff] px-2 py-1 rounded-lg text-xs">
+                                            <i class="fas fa-award mr-1"></i> Special
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-semibold">Backstage Experience</h4>
+                                                <p class="text-xs text-[#9fb4c9] mt-1">Season 2 • Exclusive</p>
+                                            </div>
+                                            <div class="text-xs bg-[#071026] px-2 py-1 rounded">#005</div>
+                                        </div>
+                                        <div class="flex justify-between items-center mt-4">
+                                            <div>
+                                                <p class="text-xs text-[#9fb4c9]">Owned</p>
+                                                <p class="text-xs accent-text">2 days ago</p>
+                                            </div>
+                                            <button class="btn-secondary px-3 py-1 rounded-lg text-sm">
+                                                Use Votes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                
+                <!-- Owned NFT Card -->
+                <div class="nft-card card-glass rounded-xl overflow-hidden rarity-common">
+                                    <div class="h-48 bg-gradient-to-br from-[#0052cc] to-[#00f0d6] relative overflow-hidden">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <i class="fas fa-music text-white text-5xl"></i>
+                                        </div>
+                                        <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                                            Common
+                                        </div>
+                                        <div class="absolute top-3 left-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                                            <i class="fas fa-vote-yea mr-1"></i> 1 Vote
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-semibold">General Admission</h4>
+                                                <p class="text-xs text-[#9fb4c9] mt-1">Season 1 • Standard</p>
+                                            </div>
+                                            <div class="text-xs bg-[#071026] px-2 py-1 rounded">#087</div>
+                                        </div>
+                                        <div class="flex justify-between items-center mt-4">
+                                            <div>
+                                                <p class="text-xs text-[#9fb4c9]">Owned</p>
+                                                <p class="text-xs accent-text">1 month ago</p>
+                                            </div>
+                                            <button class="btn-secondary px-3 py-1 rounded-lg text-sm">
+                                                Use Votes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+            </div>
+            
+            <div class="card-glass p-5 mt-8">
+                <h3 class="text-lg font-bold mb-4">Voting Power Summary</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[#9fb4c9]">Available Votes</span>
+                        <span class="font-bold accent-text">42</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[#9fb4c9]">Votes Used This Season</span>
+                        <span class="font-bold">18</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[#9fb4c9]">Votes Remaining</span>
+                        <span class="font-bold">24</span>
+                    </div>
+                    <div class="mt-4">
+                        <div class="progress-bar bg-[#071026] h-3 rounded-full">
+                            <div class="progress-fill h-3 rounded-full" style="width: 43%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-[#9fb4c9] mt-1">
+                            <span>18 used</span>
+                            <span>24 available</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <script>
+        // Tab switching functionality
+        document.getElementById('marketplace-tab').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('my-tickets-tab').classList.remove('active');
+            document.getElementById('marketplace-section').classList.remove('hidden');
+            document.getElementById('my-tickets-section').classList.add('hidden');
+        });
+        
+        document.getElementById('my-tickets-tab').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('marketplace-tab').classList.remove('active');
+            document.getElementById('my-tickets-section').classList.remove('hidden');
+            document.getElementById('marketplace-section').classList.add('hidden');
+        });
+        
+        // Filter pill functionality
+        document.querySelectorAll('.filter-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.fade-in').forEach(element => {
+            observer.observe(element);
+        });
+        
+        // Simulate loading of more NFTs
+        document.querySelector('.btn-secondary').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading...';
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-redo mr-2"></i> Load More NFTs';
+                alert('More NFTs would be loaded here...');
+            }, 1500);
+        });
+    </script>
+
+
+<script>
+// Buy NFT Function
+async function buyNFT(nftType, serialNumber) {
+    console.log(`Attempting to buy ${nftType} #${serialNumber}`);
+    
+    // Show loading state
+    const button = event.target;
+    const originalText = button.textContent;
+    button.textContent = 'Processing...';
+    button.disabled = true;
+    
+    try {
+        // 1. Get user's Hedera wallet address (you need to implement this)
+        const userWallet = await getCurrentUserWallet();
+        if (!userWallet) {
+            alert('Please connect your wallet first!');
+            return;
+        }
+        
+        // 2. Check if NFT is still available
+        const response = await fetch(`/api/check-nft-availability/${nftType}/${serialNumber}/`);
+        const data = await response.json();
+        
+        if (!data.available) {
+            alert('Sorry, this NFT is no longer available!');
+            return;
+        }
+        
+        // 3. Process payment (Hedera transaction)
+        const transactionResult = await processHederaPayment(
+            userWallet, 
+            nftType, 
+            serialNumber, 
+            data.price
+        );
+        
+        if (transactionResult.success) {
+            // 4. Transfer NFT to user
+            const transferResult = await transferNFTToUser(
+                nftType,
+                serialNumber,
+                userWallet,
+                transactionResult.transactionHash
+            );
+            
+            if (transferResult.success) {
+                alert('🎉 Purchase successful! NFT transferred to your wallet.');
+                // Refresh the page or update UI
+                window.location.reload();
+            } else {
+                throw new Error('NFT transfer failed');
+            }
+            
+        } else {
+            throw new Error('Payment failed');
+        }
+        
+    } catch (error) {
+        console.error('Purchase error:', error);
+        alert('Purchase failed: ' + error.message);
+    } finally {
+        // Reset button state
+        button.textContent = originalText;
+        button.disabled = false;
+    }
+}
+
+// Mock functions - you need to implement these based on your setup
+async function getCurrentUserWallet() {
+    // Implement wallet connection logic
+    // Example: return window.hederaWallet.getAccountId();
+    return "0.0.123456"; // Mock wallet for testing
+}
+
+async function processHederaPayment(wallet, nftType, serialNumber, price) {
+    // Implement Hedera payment logic
+    console.log(`Processing payment of ${price} HBAR from ${wallet} for ${nftType}#${serialNumber}`);
+    
+    // This should actually create and execute a Hedera TransferTransaction
+    return {
+        success: true,
+        transactionHash: "0.0.987654321"
+    };
+}
+
+async function transferNFTToUser(nftType, serialNumber, userWallet, transactionHash) {
+    // Implement NFT transfer logic
+    console.log(`Transferring ${nftType}#${serialNumber} to ${userWallet}`);
+    
+    // This should actually create and execute a Hedera TokenAssociateTransaction and TransferTransaction
+    return { success: true };
+}
+
+// Optional: Add event listener for all buy buttons
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.buy-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const nftType = this.getAttribute('data-nft-type');
+            const serialNumber = this.getAttribute('data-serial');
+            buyNFT(nftType, parseInt(serialNumber));
+        });
+    });
+});
+</script>
+{% endblock content %}

@@ -1,71 +1,95 @@
-import uuid
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
+import uuid
+import string
+import random
+from datetime import datetime, timedelta
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
+from cryptography.fernet import Fernet
+import os
+from cryptography.fernet import Fernet
+import uuid
+import base64
+from dotenv import load_dotenv
+load_dotenv()
 
-# Extend AbstractUser for flexibility
-class User(AbstractUser):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True)
-    username = models.CharField(max_length=150, unique=True)
+GENDER_CHOICES = (
+    ('Male', 'Male'),
+    ('Female', 'Female'),
+    ('Other', 'Other'),
+    ('None', 'Prefer not to say')
+)
 
-    # Role system (Artist, Audience, Judge, Sponsor, Admin)
-    ROLE_CHOICES = [
-        ('artist', 'Artist'),
+USER_TYPE_CHOICES = [
         ('audience', 'Audience'),
-        ('judge', 'Judge'),
-        ('sponsor', 'Sponsor'),
-        ('admin', 'Admin'),
+        ('artist', 'Artist'),
+        ('voter', 'Voter/Patron'),
+        ('organizer', 'Organizer'),
     ]
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='audience')
 
-    # Hedera integration
-    hedera_account_id = models.CharField(max_length=100, blank=True, null=True, help_text="Hedera account ID")
-    did = models.CharField(max_length=200, blank=True, null=True, help_text="Decentralized Identifier")
-    public_key = models.TextField(blank=True, null=True)
-    private_key_encrypted = models.TextField(blank=True, null=True)
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    image = models.ImageField(upload_to="profile", blank=True, null=True)
+    gender = models.CharField(max_length=100, choices=GENDER_CHOICES, default="None")
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default="audience")
+    funds = models.DecimalField(max_digits=9, decimal_places=2, default=0)
 
-    # Profile Info
-    bio = models.TextField(blank=True)
-    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    def name(self) -> str:
+        return self.user.get_full_name()
+    
 
-    # Engagement / gamification
-    reputation_points = models.IntegerField(default=0)  # Earned via votes, contributions, projects
+class UserWallet(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet')
+    public_key = models.CharField(max_length=256, blank=True, null=True)
+    private_key = models.CharField(max_length=256, blank=True, null=True, editable=False)
+    recipient_id = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        """Encrypt private keys before saving."""
+        if self.private_key:
+            key_str = str(self.private_key)  # Ensure it's a string
+            if not key_str.startswith("gAAAA"):  # Avoid double encryption
+                self.private_key = self.encrypt_key(key_str)
+        super().save(*args, **kwargs)
+
+    def encrypt_key(self, key: str) -> str:
+        """
+        Encrypt the private key using Fernet.
+        """
+        try:
+            secret_key = os.getenv('SECRET_KEY')
+            if not secret_key:
+                raise ValueError("Missing SECRET_KEY in environment variables")
+            
+            # Ensure the secret key is 32 bytes long
+            key_bytes = secret_key.encode()
+            key_base64 = base64.urlsafe_b64encode(key_bytes.ljust(32)[:32])
+            f = Fernet(key_base64)
+            return f.encrypt(key.encode()).decode()
+        except Exception as e:
+            raise ValueError(f"Encryption error: {e}")
+
+    def decrypt_key(self) -> str:
+        """
+        Decrypt the private key using Fernet.
+        """
+        try:
+            secret_key = os.getenv('SECRET_KEY')
+            if not secret_key:
+                raise ValueError("Missing SECRET_KEY in environment variables")
+            
+            # Ensure the secret key is 32 bytes long
+            key_bytes = secret_key.encode()
+            key_base64 = base64.urlsafe_b64encode(key_bytes.ljust(32)[:32])
+            f = Fernet(key_base64)
+            return f.decrypt(self.private_key.encode()).decode()
+        except Exception as e:
+            raise ValueError(f"Decryption error: {e}")
 
     def __str__(self):
-        return f"{self.username} ({self.role})"
-
-
-# NFT Ticket ownership (links audience/judge to events)
-class Ticket(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tickets")
-    event = models.ForeignKey("events.Event", on_delete=models.CASCADE, related_name="tickets")
-    nft_token_id = models.CharField(max_length=100, unique=True, help_text="Hedera NFT Token ID")
-    purchase_date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Ticket {self.nft_token_id} for {self.event}"
-
-
-# Votes (NFT-backed votes from audience/judges)
-class Vote(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    voter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="votes")
-    performance = models.ForeignKey("events.Performance", on_delete=models.CASCADE, related_name="votes")
-    nft_vote_id = models.CharField(max_length=100, unique=True, help_text="NFT ID minted as a vote")
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.voter} voted for {self.performance}"
-
-
-# Sponsor contributions (FT-backed, using Hedera Stablecoin/Custom Token)
-class Contribution(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sponsor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contributions")
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    token_transaction_id = models.CharField(max_length=150, help_text="Hedera Token Transfer Tx ID")
-    date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Sponsor {self.sponsor} contributed {self.amount}"
+        return f"{self.user.username} Wallet"

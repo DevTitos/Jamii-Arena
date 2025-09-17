@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock title %}
+{% block content %}
+<!-- Loading screen -->
+    <div id="loading" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050817] transition-opacity duration-500">
+        <div class="text-4xl font-bold accent-text glitch mb-6">JUST A MOMENT</div>
+        <div class="w-64 loading-bar"></div>
+        <div class="mt-4 text-sm text-[#9fb4c9]">Accessing Jamii Arena...</div>
+    </div>
+
+    <!-- Overlay for mobile menu -->
+    <div id="overlay" class="overlay"></div>
+        <!-- Top Bar -->
+        <header class="bg-[#050817] tech-border border-t-0 border-l-0 border-r-0 py-4 px-6 flex items-center justify-between">
+            <button id="menuToggle" class="lg:hidden text-[#9fb4c9] hover:text-white">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            
+            <h1 class="text-xl font-bold accent-text hidden md:block">Dashboard</h1>
+            
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button class="text-[#9fb4c9] hover:text-white">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <span class="notification-dot absolute top-0 right-0"></span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#00f0d6] to-[#007a6c] flex items-center justify-center">
+                        <i class="fas fa-user-astronaut text-white text-sm"></i>
+                    </div>
+                    <span class="text-sm">CosmicCollector</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="p-6">
+            <!-- Welcome & Stats -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-2">Welcome back, CosmicCollector!</h2>
+                <p class="text-[#9fb4c9]">Here's your activity overview and latest updates</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                    <div class="stats-card card-glass p-5 rounded-xl">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[#9fb4c9] text-sm">Total Value</p>
+                                <p class="text-2xl font-bold accent-text">$4,242</p>
+                            </div>
+                            <div class="bg-[#071026] p-2 rounded-lg">
+                                <i class="fas fa-wallet accent-text"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-[#9fb4c9]">
+                            <i class="fas fa-arrow-up mr-1 text-green-400"></i> 12.4% from last week
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card card-glass p-5 rounded-xl">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[#9fb4c9] text-sm">NFT Tickets</p>
+                                <p class="text-2xl font-bold accent-text">12</p>
+                            </div>
+                            <div class="bg-[#071026] p-2 rounded-lg">
+                                <i class="fas fa-ticket-alt accent-text"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-[#9fb4c9]">
+                            3 new tickets this month
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card card-glass p-5 rounded-xl">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[#9fb4c9] text-sm">Votes Cast</p>
+                                <p class="text-2xl font-bold accent-text">18</p>
+                            </div>
+                            <div class="bg-[#071026] p-2 rounded-lg">
+                                <i class="fas fa-vote-yea accent-text"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-[#9fb4c9]">
+                            5 votes in current season
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card card-glass p-5 rounded-xl">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[#9fb4c9] text-sm">DAO Votes</p>
+                                <p class="text-2xl font-bold accent-text">7</p>
+                            </div>
+                            <div class="bg-[#071026] p-2 rounded-lg">
+                                <i class="fas fa-landmark accent-text"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-[#9fb4c9]">
+                            2 active proposals
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Current Voting -->
+                    <div class="card-glass p-6 rounded-xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold">Current Voting</h3>
+                            <a href="#" class="text-sm accent-text hover:underline">View All</a>
+                        </div>
+                        
+                        <div class="space-y-5">
+                            <!-- Vote Item -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#0052cc] to-[#00f0d6] flex items-center justify-center">
+                                        <i class="fas fa-robot text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold">Neural Networks</h4>
+                                        <p class="text-xs text-[#9fb4c9]">AI Artist • Season 2</p>
+                                    </div>
+                                </div>
+                                <button class="btn-primary px-4 py-2 rounded-lg text-sm">
+                                    Vote Now
+                                </button>
+                            </div>
+                            
+                            <!-- Vote Item -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#cc00ff] to-[#00f0d6] flex items-center justify-center">
+                                        <i class="fas fa-paint-brush text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold">Digital Painter</h4>
+                                        <p class="text-xs text-[#9fb4c9]">Traditional Digital • Season 2</p>
+                                    </div>
+                                </div>
+                                <button class="btn-primary px-4 py-2 rounded-lg text-sm">
+                                    Vote Now
+                                </button>
+                            </div>
+                            
+                            <!-- Vote Item -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#00f0d6] to-[#007a6c] flex items-center justify-center">
+                                        <i class="fas fa-user-astronaut text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold">Cosmic Creator</h4>
+                                        <p class="text-xs text-[#9fb4c9]">Digital Artist • Season 2</p>
+                                    </div>
+                                </div>
+                                <button class="btn-secondary px-4 py-2 rounded-lg text-sm">
+                                    Voted
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent NFTs -->
+                    <div class="card-glass p-6 rounded-xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold">Recent NFTs</h3>
+                            <a href="#" class="text-sm accent-text hover:underline">View All</a>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- NFT Card -->
+                            <div class="nft-card card-glass rounded-xl overflow-hidden">
+                                <div class="h-40 bg-gradient-to-br from-[#00f0d6] to-[#007a6c] relative overflow-hidden">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <i class="fas fa-ticket-alt text-white text-5xl"></i>
+                                    </div>
+                                    <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                                        #042
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <h4 class="font-semibold">Golden Access Pass</h4>
+                                    <p class="text-xs text-[#9fb4c9] mt-1">Season 2 • VIP Ticket</p>
+                                    <div class="flex justify-between items-center mt-3">
+                                        <div class="text-xs text-[#9fb4c9]">3 days ago</div>
+                                        <div class="text-xs accent-text font-semibold">$420</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- NFT Card -->
+                            <div class="nft-card card-glass rounded-xl overflow-hidden">
+                                <div class="h-40 bg-gradient-to-br from-[#0052cc] to-[#00f0d6] relative overflow-hidden">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <i class="fas fa-vote-yea text-white text-5xl"></i>
+                                    </div>
+                                    <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                                        #018
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <h4 class="font-semibold">Voting Power NFT</h4>
+                                    <p class="text-xs text-[#9fb4c9] mt-1">Season 2 • Vote Token</p>
+                                    <div class="flex justify-between items-center mt-3">
+                                        <div class="text-xs text-[#9fb4c9]">5 days ago</div>
+                                        <div class="text-xs accent-text font-semibold">$240</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- DAO Proposals -->
+                    <div class="card-glass p-6 rounded-xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold">DAO Proposals</h3>
+                            <a href="#" class="text-sm accent-text hover:underline">View All</a>
+                        </div>
+                        
+                        <div class="space-y-5">
+                            <!-- Proposal Item -->
+                            <div>
+                                <h4 class="font-semibold">Increase Prize Pool Allocation</h4>
+                                <div class="mt-2 progress-bar">
+                                    <div class="progress-fill" style="width: 65%"></div>
+                                </div>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-xs text-[#9fb4c9]">65% Yes</span>
+                                    <span class="text-xs text-[#9fb4c9]">2 days left</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Proposal Item -->
+                            <div>
+                                <h4 class="font-semibold">New Artist Onboarding Process</h4>
+                                <div class="mt-2 progress-bar">
+                                    <div class="progress-fill" style="width: 42%"></div>
+                                </div>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-xs text-[#9fb4c9]">42% Yes</span>
+                                    <span class="text-xs text-[#9fb4c9]">5 days left</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-secondary w-full mt-6 py-2 rounded-lg">
+                            Create Proposal
+                        </button>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="card-glass p-6 rounded-xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold">Recent Activity</h3>
+                            <a href="#" class="text-sm accent-text hover:underline">View All</a>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <!-- Activity Item -->
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-[#071026] p-2 rounded-lg mt-1">
+                                    <i class="fas fa-ticket-alt accent-text"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Ticket Minted</h4>
+                                    <p class="text-xs text-[#9fb4c9]">Golden Access Pass #042</p>
+                                    <p class="text-xs text-[#9fb4c9] mt-1">3 hours ago</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Activity Item -->
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-[#071026] p-2 rounded-lg mt-1">
+                                    <i class="fas fa-vote-yea accent-text"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Vote Cast</h4>
+                                    <p class="text-xs text-[#9fb4c9]">For Cosmic Creator</p>
+                                    <p class="text-xs text-[#9fb4c9] mt-1">1 day ago</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Activity Item -->
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-[#071026] p-2 rounded-lg mt-1">
+                                    <i class="fas fa-coins accent-text"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Reward Received</h4>
+                                    <p class="text-xs text-[#9fb4c9]">12.5 HBAR for voting</p>
+                                    <p class="text-xs text-[#9fb4c9] mt-1">2 days ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="card-glass p-6 rounded-xl">
+                        <h3 class="text-xl font-bold mb-6">Quick Actions</h3>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="btn-primary py-3 rounded-lg flex flex-col items-center justify-center">
+                                <i class="fas fa-ticket-alt text-lg mb-1"></i>
+                                <span class="text-xs">Mint Ticket</span>
+                            </button>
+                            
+                            <button class="btn-secondary py-3 rounded-lg flex flex-col items-center justify-center">
+                                <i class="fas fa-vote-yea text-lg mb-1"></i>
+                                <span class="text-xs">Cast Vote</span>
+                            </button>
+                            
+                            <button class="btn-secondary py-3 rounded-lg flex flex-col items-center justify-center">
+                                <i class="fas fa-landmark text-lg mb-1"></i>
+                                <span class="text-xs">DAO</span>
+                            </button>
+                            
+                            <button class="btn-secondary py-3 rounded-lg flex flex-col items-center justify-center">
+                                <i class="fas fa-exchange-alt text-lg mb-1"></i>
+                                <span class="text-xs">Transfer</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock content %}
