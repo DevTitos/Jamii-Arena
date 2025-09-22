@@ -37,6 +37,8 @@ class Profile(models.Model):
     gender = models.CharField(max_length=100, choices=GENDER_CHOICES, default="None")
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default="audience")
     funds = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    hbar = models.DecimalField(max_digits=9, decimal_places=2, default=10)
+    jmt = models.DecimalField(max_digits=9, decimal_places=2, default=0)
 
     def name(self) -> str:
         return self.user.get_full_name()

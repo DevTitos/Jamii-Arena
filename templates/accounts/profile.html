@@ -158,20 +158,20 @@
                 
                 <div class="flex-1 text-center md:text-left">
                     <h1 class="text-3xl font-bold">{{user.first_name}}</h1>
-                    <p class="text-[#9fb4c9] mt-1">Digital Art Enthusiast • NFT Collector</p>
-                    <p class="text-sm text-[#9fb4c9] mt-2">Joined March 2023 • <span class="accent-text">Member</span></p>
+                    <p class="text-[#9fb4c9] mt-1"></p>
+                    <p class="text-sm text-[#9fb4c9] mt-2">Joined March 2023 • <span class="accent-text">{{user.profile.user_type}}</span></p>
                     
                     <div class="flex flex-wrap gap-2 mt-4 justify-center md:justify-start">
-                        <span class="badge badge-primary">12 NFTs</span>
-                        <span class="badge badge-primary">42 Votes Cast</span>
+                        <!--span class="badge badge-primary">12 NFTs</span-->
+                        <!--span class="badge badge-primary">42 Votes Cast</span-->
                         <!--span class="badge badge-success">DAO Member</span-->
-                        <span class="badge badge-warning">Artist Applicant</span>
+                        <!--span class="badge badge-warning">Artist Applicant</span-->
                     </div>
                 </div>
                 
                 <div class="mt-4 md:mt-0">
-                    <button class="btn-secondary px-4 py-2 rounded-lg">
-                        <i class="fas fa-share-alt mr-2"></i> Share Profile
+                    <button class="btn-secondary px-4 py-2 rounded-lg" onclick="openModal('createDIDModal')">
+                        <i class="fas fa-share-alt mr-2"></i> Add Funds
                     </button>
                 </div>
             </div>
@@ -208,20 +208,20 @@
                             
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div class="text-center p-4 bg-[#071026] rounded-lg">
-                                    <div class="text-2xl font-bold accent-text">12</div>
-                                    <div class="text-sm text-[#9fb4c9] mt-1">NFTs Owned</div>
+                                    <div class="text-2xl font-bold accent-text">{{user.profile.funds}} KES</div>
+                                    <div class="text-sm text-[#9fb4c9] mt-1">FIAT Balance</div>
                                 </div>
                                 <div class="text-center p-4 bg-[#071026] rounded-lg">
-                                    <div class="text-2xl font-bold accent-text">42</div>
-                                    <div class="text-sm text-[#9fb4c9] mt-1">Votes Cast</div>
+                                    <div class="text-2xl font-bold accent-text">{{user.profile.jmt}} JMT</div>
+                                    <div class="text-sm text-[#9fb4c9] mt-1">Jamii Token</div>
                                 </div>
                                 <!--div class="text-center p-4 bg-[#071026] rounded-lg">
                                     <div class="text-2xl font-bold accent-text">7</div>
                                     <div class="text-sm text-[#9fb4c9] mt-1">DAO Votes</div>
                                 </div-->
                                 <div class="text-center p-4 bg-[#071026] rounded-lg">
-                                    <div class="text-2xl font-bold accent-text">3</div>
-                                    <div class="text-sm text-[#9fb4c9] mt-1">Artists Supported</div>
+                                    <div class="text-2xl font-bold accent-text">{{user.profile.hbar}} HBAR</div>
+                                    <div class="text-sm text-[#9fb4c9] mt-1">HBAR</div>
                                 </div>
                             </div>
                         </div>
@@ -236,13 +236,9 @@
                                     <span class="font-bold text-sm">{{user.wallet.recipient_id}}</span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <span class="text-[#9fb4c9]">Account Balance</span>
-                                    <span class="font-bold accent-text">1,245 HBAR</span>
+                                    <span class="text-[#9fb4c9]">NFTs</span>
+                                    <span class="font-bold accent-text">{{nfts.count}}</span>
                                 </div>
-                                <!--div class="flex justify-between items-center">
-                                    <span class="text-[#9fb4c9]">First Transaction</span>
-                                    <span class="text-sm">March 15, 2023</span>
-                                </div-->
                                 <div class="flex justify-between items-center">
                                     <span class="text-[#9fb4c9]">Network Status</span>
                                     <span class="text-sm accent-text">Connected</span>
@@ -275,7 +271,7 @@
                                     <i class="fas fa-chevron-right text-[#9fb4c9]"></i>
                                 </div>
                                 
-                                <!--div class="onboarding-card card-glass p-4 rounded-lg flex items-center" onclick="openModal('joinDAOModal')">
+                                <div class="onboarding-card card-glass p-4 rounded-lg flex items-center" onclick="openModal('joinDAOModal')">
                                     <div class="step-indicator">
                                         <i class="fas fa-landmark"></i>
                                     </div>
@@ -286,7 +282,7 @@
                                     <i class="fas fa-chevron-right text-[#9fb4c9]"></i>
                                 </div>
                                 
-                                <div class="onboarding-card card-glass p-4 rounded-lg flex items-center" onclick="openModal('createDIDModal')">
+                                <!--div class="onboarding-card card-glass p-4 rounded-lg flex items-center" onclick="openModal('createDIDModal')">
                                     <div class="step-indicator">
                                         <i class="fas fa-id-card"></i>
                                     </div>

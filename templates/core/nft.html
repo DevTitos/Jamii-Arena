@@ -149,6 +149,25 @@
             border-left: 3px solid #ff9900;
         }
     </style>
+    <style>
+.competition-card {
+    transition: all 0.3s ease;
+}
+
+.competition-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 240, 214, 0.2);
+}
+
+.nft-card {
+    transition: all 0.3s ease;
+}
+
+.nft-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 240, 214, 0.2);
+}
+</style>
 {% endblock style %}
 {% block content %}
         <div class="text-center mb-10 fade-in">
@@ -187,85 +206,147 @@
 
         <!-- Marketplace Section -->
         <div id="marketplace-section" class="fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Featured NFT Tickets</h2>
-                <div class="text-sm text-[#9fb4c9]">NFT documentary</div>
+
+
+<!-- Available Competitions Grid -->
+<h2 class="text-2xl font-bold mb-6">Extreme Experience Passes</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {% for competition in competitions %}
+    <div class="competition-card card-glass rounded-xl overflow-hidden">
+        <div class="h-48 bg-gradient-to-br {{ competition.get_gradient }} relative overflow-hidden">
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i class="fas {{ competition.get_icon }} text-white text-5xl"></i>
             </div>
-
-
-            <!-- Collection Summary Section -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-    {% for collection in collections %}
-    <div class="bg-[#071026] p-4 rounded-lg border border-[#1e2b45]">
-        <h3 class="font-semibold text-lg mb-2">{{ collection.get_nft_type_display }}</h3>
-        <div class="flex justify-between items-center mb-3">
-            <span class="text-sm text-[#9fb4c9]">Supply</span>
-            <span class="font-bold {% if collection.is_sold_out %}text-red-400{% else %}text-green-400{% endif %}">
-                {{ collection.current_supply }} / {{ collection.max_supply }}
-            </span>
+            <!-- Display competition info on each card -->
+            <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                {{ competition.get_status_display }}
+            </div>
+            <div class="absolute top-3 left-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                <i class="fas fa-users mr-1"></i> {{ competition.contestant_set.count }}
+            </div>
+            <div class="absolute bottom-3 left-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                {{ competition.get_tickets_sold }}/{{ competition.get_max_tickets }}
+            </div>
         </div>
-        <div class="w-full bg-[#1e2b45] rounded-full h-2 mb-2">
-            <div class="bg-gradient-to-r from-[#00f0d6] to-[#007a6c] h-2 rounded-full" 
-                 style="width: {% widthratio collection.current_supply collection.max_supply 100 %}%"></div>
+        <div class="p-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h4 class="font-semibold">{{ competition.title }}</h4>
+                    <p class="text-xs text-[#9fb4c9] mt-1">{{ competition.venue }}</p>
+                    <p class="text-xs text-[#9fb4c9]">{{ competition.date_time|date:"M d, Y • g:i A" }}</p>
+                </div>
+                <div class="text-xs bg-[#071026] px-2 py-1 rounded">
+                    {{ competition.get_category_display }}
+                </div>
+            </div>
+            
+            <div class="mt-3 space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-[#9fb4c9]">Prize Pool</span>
+                    <span class="font-bold accent-text">${{ competition.prize_pool }} HTS</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-[#9fb4c9]">Contestants</span>
+                    <span class="font-bold">{{ competition.contestant_set.count }} registered</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-[#9fb4c9]">Registration Fee</span>
+                    <span class="font-bold accent-text">${{ competition.registration_fee }} HTS</span>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center mt-4">
+                <div>
+                    <p class="text-xs text-[#9fb4c9]">Pass Price</p>
+                    <p class="font-bold accent-text">{{ competition.get_ticket_price }} HBAR</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn-secondary px-2 py-1 rounded-lg text-xs"
+                            onclick="showCompetitionDetails({{ competition.id }})">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-primary px-3 py-1 rounded-lg text-sm buy-ticket"
+                            data-competition-id="{{ competition.id }}"
+                            data-competition-title="{{ competition.title }}"
+                            {% if competition.is_sold_out %}disabled{% endif %}>
+                        {% if competition.is_sold_out %}Sold Out
+                        {% else %}Buy Pass
+                        {% endif %}
+                    </button>
+                </div>
+            </div>
         </div>
-        {% if collection.is_sold_out %}
-        <div class="text-red-400 text-sm font-semibold text-center">SOLD OUT</div>
-        {% else %}
-        <div class="text-green-400 text-sm font-semibold text-center">
-            {{ collection.available_count }} Available
-        </div>
-        {% endif %}
+    </div>
+    {% empty %}
+    <div class="col-span-full text-center py-12">
+        <p class="text-[#9fb4c9]">No competitions available at the moment.</p>
     </div>
     {% endfor %}
 </div>
+ 
+<br>
 
-<!-- Available NFTs Grid -->
-<h2 class="text-2xl font-bold mb-6">Available NFTs</h2>
+<!-- Alternative: Show NFT Passes instead of Competitions -->
+<h2 class="text-2xl font-bold mb-6">Available Experience Passes</h2>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-    {% for nft in nfts %}
-    <div class="nft-card card-glass rounded-xl overflow-hidden rarity-{{ nft.collection.get_rarity }}">
+    {% for nft in available_nfts %}
+    <div class="nft-card card-glass rounded-xl overflow-hidden">
         <div class="h-48 bg-gradient-to-br {{ nft.collection.get_gradient }} relative overflow-hidden">
             <div class="absolute inset-0 flex items-center justify-center">
                 <i class="fas {{ nft.collection.get_icon }} text-white text-5xl"></i>
             </div>
-            <!-- Display supply info on each card -->
             <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
                 #{{ nft.serial_number }}/{{ nft.collection.max_supply }}
             </div>
             <div class="absolute top-3 left-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
                 <i class="fas fa-vote-yea mr-1"></i> {{ nft.collection.get_votes }}
             </div>
+            <div class="absolute bottom-3 left-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                {{ nft.collection.competition.get_category_display }}
+            </div>
         </div>
         <div class="p-4">
             <div class="flex justify-between items-start">
                 <div>
-                    <h4 class="font-semibold">{{ nft.collection.get_title }}</h4>
-                    <p class="text-xs text-[#9fb4c9] mt-1">{{ nft.collection.get_subtitle }}</p>
+                    <h4 class="font-semibold">{{ nft.collection.competition.title }}</h4>
+                    <p class="text-xs text-[#9fb4c9] mt-1">{{ nft.collection.get_title }}</p>
+                    <p class="text-xs text-[#9fb4c9]">{{ nft.collection.competition.date_time|date:"M d, Y" }}</p>
                 </div>
                 <div class="text-xs bg-[#071026] px-2 py-1 rounded">
                     {{ nft.collection.get_rarity_display }}
                 </div>
             </div>
+            
+            <div class="mt-3 space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-[#9fb4c9]">Voting Power</span>
+                    <span class="font-bold">{{ nft.collection.get_votes }} votes</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-[#9fb4c9]">Competition</span>
+                    <span class="font-bold">{{ nft.collection.competition.get_category_display }}</span>
+                </div>
+            </div>
+            
             <div class="flex justify-between items-center mt-4">
                 <div>
                     <p class="text-xs text-[#9fb4c9]">Price</p>
                     <p class="font-bold accent-text">{{ nft.price }} HBAR</p>
                 </div>
-                <button class="btn-primary px-3 py-1 rounded-lg text-sm buy-button"
-                        data-nft-type="{{ nft.collection.nft_type }}"
-                        data-serial="{{ nft.serial_number }}"
-                        {% if nft.collection.is_sold_out or not nft.is_available %}disabled{% endif %}>
-                        {% if nft.collection.is_sold_out %}Sold Out
-                        {% elif not nft.is_available %}Unavailable
-                        {% else %}Buy Now
-                        {% endif %}
+                <button class="btn-primary px-3 py-1 rounded-lg text-sm buy-nft"
+                        data-nft-id="{{ nft.id }}"
+                        data-competition-id="{{ nft.collection.competition.id }}"
+                        {% if not nft.is_available %}disabled{% endif %}>
+                    {% if not nft.is_available %}Sold Out
+                    {% else %}Buy Now
+                    {% endif %}
                 </button>
             </div>
         </div>
     </div>
     {% empty %}
     <div class="col-span-full text-center py-12">
-        <p class="text-[#9fb4c9]">No NFTs available for purchase.</p>
+        <p class="text-[#9fb4c9]">No passes available for purchase.</p>
     </div>
     {% endfor %}
 </div>
@@ -554,7 +635,7 @@ async function buyNFT(nftType, serialNumber) {
         }
         
         // 2. Check if NFT is still available
-        const response = await fetch(`/api/check-nft-availability/${nftType}/${serialNumber}/`);
+        const response = await fetch(`/arena/api/check-nft-availability/${nftType}/${serialNumber}/`);
         const data = await response.json();
         
         if (!data.available) {
@@ -637,5 +718,517 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+</script>
+
+<script>
+// Handle ticket purchase buttons
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click event to all buy-ticket buttons
+    document.querySelectorAll('.buy-ticket').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const competitionId = this.getAttribute('data-competition-id');
+            const competitionTitle = this.getAttribute('data-competition-title');
+            
+            console.log('Buy ticket clicked for:', competitionTitle, 'ID:', competitionId);
+            
+            // Call the purchase function
+            purchaseTicket(competitionId, competitionTitle, this);
+        });
+    });
+});
+
+// Purchase ticket function
+async function purchaseTicket(competitionId, competitionTitle, buttonElement) {
+    console.log('Starting purchase for competition:', competitionTitle);
+    
+    // Show loading state
+    const originalText = buttonElement.innerHTML;
+    buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Processing...';
+    buttonElement.disabled = true;
+    
+    try {
+        // Check if user is logged in
+        const isAuthenticated = await checkUserAuthentication();
+        
+        if (!isAuthenticated) {
+            // Redirect to login or show login modal
+            showLoginModal(competitionId);
+            return;
+        }
+        
+        // Show ticket selection modal
+        showTicketSelectionModal(competitionId, competitionTitle);
+        
+    } catch (error) {
+        console.error('Purchase error:', error);
+        
+        // Show error message
+        showMessage('error', 'Purchase failed: ' + error.message);
+        
+        // Reset button
+        buttonElement.innerHTML = originalText;
+        buttonElement.disabled = false;
+    }
+}
+
+// Check if user is authenticated (mock function - replace with actual auth check)
+async function checkUserAuthentication() {
+    // Replace this with your actual authentication check
+    // Example: Check if user has wallet connected or is logged in
+    return true; // Change to false to test login redirect
+}
+
+// Show ticket selection modal
+function showTicketSelectionModal(competitionId, competitionTitle) {
+    console.log('Showing ticket modal for:', competitionTitle);
+    
+    // Create or show modal
+    const modalHtml = `
+        <div id="ticketModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75">
+            <div class="card-glass rounded-2xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold accent-text">Choose Your Pass</h3>
+                        <button onclick="closeTicketModal()" class="text-[#9fb4c9] hover:text-white">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-semibold mb-2">${competitionTitle}</h4>
+                        <p class="text-sm text-[#9fb4c9]">Select your experience pass tier</p>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="ticket-tier card-glass p-4 rounded-lg cursor-pointer border-2 border-transparent hover:border-[#00f0d6] transition-all" data-tier="REG">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-semibold">Regular Pass</h4>
+                                    <p class="text-xs text-[#9fb4c9]">General Access • 1 Vote</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold accent-text">0.8 HBAR</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-tier card-glass p-4 rounded-lg cursor-pointer border-2 border-transparent hover:border-[#00f0d6] transition-all" data-tier="VIP">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-semibold">VIP Pass</h4>
+                                    <p class="text-xs text-[#9fb4c9]">Priority Access • 2 Votes</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold accent-text">1.5 HBAR</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-tier card-glass p-4 rounded-lg cursor-pointer border-2 border-transparent hover:border-[#00f0d6] transition-all" data-tier="VVIP">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-semibold">Elite Pass</h4>
+                                    <p class="text-xs text-[#9fb4c9]">VIP Access • 3 Votes</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold accent-text">3.0 HBAR</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="confirmPurchase" class="btn-primary w-full py-3 rounded-lg font-semibold" disabled>
+                        Select a Pass Tier
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('ticketModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Add event listeners to ticket tiers
+    document.querySelectorAll('.ticket-tier').forEach(tier => {
+        tier.addEventListener('click', function() {
+            // Remove selection from all tiers
+            document.querySelectorAll('.ticket-tier').forEach(t => {
+                t.classList.remove('border-[#00f0d6]', 'bg-[#00f0d6]/10');
+            });
+            
+            // Add selection to clicked tier
+            this.classList.add('border-[#00f0d6]', 'bg-[#00f0d6]/10');
+            
+            // Enable confirm button
+            const confirmBtn = document.getElementById('confirmPurchase');
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = `Buy ${this.querySelector('h4').textContent} - ${this.querySelector('.accent-text').textContent}`;
+            confirmBtn.setAttribute('data-tier', this.getAttribute('data-tier'));
+        });
+    });
+    
+    // Add event listener to confirm button
+    document.getElementById('confirmPurchase').addEventListener('click', function() {
+        const selectedTier = this.getAttribute('data-tier');
+        if (selectedTier) {
+            processTicketPurchase(competitionId, selectedTier);
+        }
+    });
+}
+
+// Process the actual ticket purchase
+async function processTicketPurchase(competitionId, tier) {
+    console.log('Processing purchase for competition:', competitionId, 'Tier:', tier);
+    
+    const confirmBtn = document.getElementById('confirmPurchase');
+    const originalText = confirmBtn.innerHTML;
+    
+    try {
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Purchasing...';
+        confirmBtn.disabled = true;
+        
+        // Get CSRF token for Django
+        const csrfToken = getCSRFToken();
+        
+        // Make API call to purchase ticket
+        const response = await fetch(`/arena/buy-ticket/${tier}/${competitionId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        });
+        
+        // Check if response is OK
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Parse JSON response
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage('success', '🎉 Pass purchased successfully!');
+            closeTicketModal();
+            
+            // Show transaction details if available
+            if (result.transaction_hash) {
+                showMessage('info', `Transaction: ${result.transaction_hash}`);
+            }
+            
+            // Refresh the page or update UI
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+            
+        } else {
+            throw new Error(result.message || 'Purchase failed');
+        }
+        
+    } catch (error) {
+        console.error('Purchase error:', error);
+        
+        // Handle specific error cases
+        if (error.message.includes('401') || error.message.includes('403')) {
+            showMessage('error', 'Please log in to purchase tickets');
+            setTimeout(() => {
+                window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+            }, 2000);
+        } else if (error.message.includes('404')) {
+            showMessage('error', 'Ticket not available or competition not found');
+        } else {
+            showMessage('error', error.message);
+        }
+        
+        confirmBtn.innerHTML = originalText;
+        confirmBtn.disabled = false;
+    }
+}
+
+// Helper function to get CSRF token
+function getCSRFToken() {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+    
+    if (!cookieValue) {
+        console.warn('CSRF token not found');
+        return '';
+    }
+    
+    return cookieValue;
+}
+
+// Alternative CSRF token getter using Django's template tag
+function getCSRFTokenFromMeta() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    return metaTag ? metaTag.getAttribute('content') : '';
+}
+
+// Mock API function - replace with actual API call
+async function mockPurchaseAPI(competitionId, tier) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            // Simulate random success/failure
+            const success = Math.random() > 0.2; // 80% success rate
+            if (success) {
+                resolve({
+                    success: true,
+                    message: 'Ticket purchased successfully',
+                    transactionHash: '0x' + Math.random().toString(16).substr(2, 64)
+                });
+            } else {
+                resolve({
+                    success: false,
+                    message: 'Insufficient funds or network error'
+                });
+            }
+        }, 1500);
+    });
+}
+
+// Close ticket modal
+function closeTicketModal() {
+    const modal = document.getElementById('ticketModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Show login modal (simplified version)
+function showLoginModal(competitionId) {
+    if (confirm('You need to log in to purchase tickets. Redirect to login page?')) {
+        window.location.href = `/login?next=/competition/${competitionId}/`;
+    }
+}
+
+// Show message function
+function showMessage(type, message) {
+    // You can use your existing message system or create a simple alert
+    const alertClass = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 ${alertClass} text-white p-4 rounded-lg shadow-lg`;
+    messageDiv.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'} mr-2"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(messageDiv);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (messageDiv.parentElement) {
+            messageDiv.remove();
+        }
+    }, 5000);
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+    if (event.target.id === 'ticketModal') {
+        closeTicketModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeTicketModal();
+    }
+});
+</script>
+
+<script>
+// Competition details data (you can fetch this from your backend)
+const competitionDetails = {
+    {% for competition in competitions %}
+    {{ competition.id }}: {
+        title: "{{ competition.title|escapejs }}",
+        description: "{{ competition.description|escapejs }}",
+        venue: "{{ competition.venue|escapejs }}",
+        date: "{{ competition.date_time|date:'M d, Y • g:i A' }}",
+        category: "{{ competition.get_category_display|escapejs }}",
+        status: "{{ competition.get_status_display|escapejs }}",
+        prize_pool: "{{ competition.prize_pool }}",
+        registration_fee: "{{ competition.registration_fee }}",
+        contestants_count: {{ competition.contestant_set.count }},
+        organizer: "{{ competition.organizer.user.username|escapejs }}"
+    },
+    {% endfor %}
+};
+
+// Show competition details modal
+function showCompetitionDetails(competitionId) {
+    console.log('Showing details for competition ID:', competitionId);
+    
+    const competition = competitionDetails[competitionId];
+    
+    if (!competition) {
+        alert('Competition details not found!');
+        return;
+    }
+    
+    // Create modal HTML
+    const modalHtml = `
+        <div id="competitionDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75">
+            <div class="card-glass rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-2xl font-bold accent-text">${competition.title}</h3>
+                        <button onclick="closeModal('competitionDetailsModal')" class="text-[#9fb4c9] hover:text-white">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Competition Image/Header -->
+                        <div class="h-48 bg-gradient-to-br ${getCompetitionGradient(competition.category)} rounded-lg flex items-center justify-center">
+                            <i class="fas ${getCompetitionIcon(competition.category)} text-white text-5xl"></i>
+                        </div>
+                        
+                        <!-- Basic Info -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-[#071026] p-3 rounded-lg">
+                                <p class="text-sm text-[#9fb4c9]">Venue</p>
+                                <p class="font-semibold">${competition.venue}</p>
+                            </div>
+                            <div class="bg-[#071026] p-3 rounded-lg">
+                                <p class="text-sm text-[#9fb4c9]">Date & Time</p>
+                                <p class="font-semibold">${competition.date}</p>
+                            </div>
+                            <div class="bg-[#071026] p-3 rounded-lg">
+                                <p class="text-sm text-[#9fb4c9]">Prize Pool</p>
+                                <p class="font-semibold accent-text">$${competition.prize_pool} HTS</p>
+                            </div>
+                            <div class="bg-[#071026] p-3 rounded-lg">
+                                <p class="text-sm text-[#9fb4c9]">Contestants</p>
+                                <p class="font-semibold">${competition.contestants_count} Registered</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="bg-[#071026] p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">About this Competition</h4>
+                            <p class="text-[#9fb4c9] text-sm">${competition.description}</p>
+                        </div>
+                        
+                        <!-- Additional Info -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                            <div class="bg-[#071026] p-3 rounded-lg">
+                                <p class="text-sm text-[#9fb4c9]">Category</p>
+                                <p class="font-semibold">${competition.category}</p>
+                            </div>
+                            <div class="bg-[#071026] p-3 rounded-lg">
+                                <p class="text-sm text-[#9fb4c9]">Status</p>
+                                <p class="font-semibold">${competition.status}</p>
+                            </div>
+                            <div class="bg-[#071026] p-3 rounded-lg">
+                                <p class="text-sm text-[#9fb4c9]">Registration Fee</p>
+                                <p class="font-semibold">$${competition.registration_fee} HTS</p>
+                            </div>
+                            <!--div class="bg-[#071026] p-3 rounded-lg">
+                                <p class="text-sm text-[#9fb4c9]">Organizer</p>
+                                <p class="font-semibold">${competition.organizer}</p>
+                            </div-->
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <!--div class="flex gap-3 mt-6">
+                        <button onclick="showRegistrationModal(${competitionId})" class="btn-primary flex-1 py-3">
+                            <i class="fas fa-user-plus mr-2"></i>Register as Competitor
+                        </button>
+                        <button onclick="showTicketModal(${competitionId})" class="btn-secondary flex-1 py-3">
+                            <i class="fas fa-ticket-alt mr-2"></i>Buy Experience Pass
+                        </button>
+                    </div-->
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('competitionDetailsModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+// Helper functions for gradients and icons
+function getCompetitionGradient(category) {
+    const gradients = {
+        'Music': 'from-[#00f0d6] to-[#007a6c]',
+        'Dance': 'from-[#9d4edd] to-[#5a189a]',
+        'Comedy': 'from-[#ff6b6b] to-[#c0392b]',
+        'Poetry': 'from-[#4cc9f0] to-[#4895ef]',
+        'Martial Arts': 'from-[#f9c74f] to-[#f9844a]',
+    };
+    return gradients[category] || 'from-[#4cc9f0] to-[#4895ef]';
+}
+
+function getCompetitionIcon(category) {
+    const icons = {
+        'Music': 'fa-microphone-alt',
+        'Dance': 'fa-music',
+        'Comedy': 'fa-theater-masks',
+        'Poetry': 'fa-feather-alt',
+        'Martial Arts': 'fa-fist-raised',
+    };
+    return icons[category] || 'fa-ticket-alt';
+}
+
+// Close modal function
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+    if (event.target.id === 'competitionDetailsModal') {
+        closeModal('competitionDetailsModal');
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal('competitionDetailsModal');
+    }
+});
+
+// Placeholder functions for other modals (you'll need to implement these)
+function showRegistrationModal(competitionId) {
+    alert('Registration modal would open for competition: ' + competitionId);
+    // Implement your registration modal logic here
+}
+
+function showTicketModal(competitionId) {
+    alert('Ticket modal would open for competition: ' + competitionId);
+    // Implement your ticket purchase modal logic here
+}
 </script>
 {% endblock content %}

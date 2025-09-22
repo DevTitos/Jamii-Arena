@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unity Chamber — Events • Ticketing • Voting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --accent: #00f0d6;
+            --accent-dark: #00c4a9;
+            --dark-bg: #050817;
+            --card-bg: rgba(7, 16, 38, 0.8);
+            --text-primary: #e6eef8;
+            --text-secondary: #9fb4c9;
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+        
+        .tech-border {
+            border: 1px solid rgba(0, 240, 214, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 214, 0.1);
+        }
+        
+        .card-glass {
+            background: rgba(7, 16, 38, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .accent-text {
+            color: var(--accent);
+        }
+        
+        .accent-gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 240, 214, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 240, 214, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 240, 214, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 240, 214, 0); }
+        }
+        
+        .glitch {
+            position: relative;
+            animation: glitch 5s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 0 var(--accent); }
+            5% { text-shadow: -2px 2px 0 #ff00ff, 2px -2px 0 #00ffff; }
+            6% { text-shadow: 0 0 0 var(--accent); }
+            100% { text-shadow: 0 0 0 var(--accent); }
+        }
+        
+        .hex-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 214, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 214, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .loading-bar {
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 50%, var(--accent) 100%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite linear;
+            border-radius: 4px;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 240, 214, 0.2);
+        }
+        
+        .ticket-tier-vip {
+            background: linear-gradient(135deg, #9d4edd 0%, #5a189a 100%);
+        }
+        
+        .ticket-tier-vvip {
+            background: linear-gradient(135deg, #f9c74f 0%, #f9844a 100%);
+        }
+        
+        .ticket-tier-regular {
+            background: linear-gradient(135deg, #4cc9f0 0%, #4895ef 100%);
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu {
+                animation: slideDown 0.5s ease-out;
+            }
+            
+            @keyframes slideDown {
+                from { opacity: 0; transform: translateY(-20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+</head>
+<body class="hex-pattern min-h-screen">
+    <!-- Loading screen -->
+    <div id="loading" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050817] transition-opacity duration-500">
+        <div class="text-4xl font-bold accent-text glitch mb-6">UNITY CHAMBER</div>
+        <div class="w-64 loading-bar"></div>
+        <div class="mt-4 text-sm text-[#9fb4c9]">Loading immersive experience...</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 bg-[#050817] tech-border border-t-0 border-l-0 border-r-0 py-3 px-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full accent-gradient flex items-center justify-center">
+                    <i class="fas fa-cube text-black"></i>
+                </div>
+                <span class="text-xl font-bold accent-text">UNITY CHAMBER</span>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#events" class="text-sm hover:accent-text transition-colors">Events</a>
+                <a href="#ticketing" class="text-sm hover:accent-text transition-colors">Ticketing</a>
+                <a href="#voting" class="text-sm hover:accent-text transition-colors">Voting</a>
+                <a href="#artists" class="text-sm hover:accent-text transition-colors">Artists</a>
+                <a href="{% url 'login' %}" style="text-decoration: none;"><button class="btn-primary px-5 py-2 rounded-full text-sm">Login</button></a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobileMenuButton" class="md:hidden text-[#9fb4c9] hover:text-white">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="mobile-menu hidden md:hidden mt-4 py-4 border-t border-[#00f0d6]/20">
+            <div class="flex flex-col space-y-4">
+                <a href="#events" class="text-sm hover:accent-text transition-colors">Events</a>
+                <a href="#ticketing" class="text-sm hover:accent-text transition-colors">Ticketing</a>
+                <a href="#voting" class="text-sm hover:accent-text transition-colors">Voting</a>
+                <a href="#artists" class="text-sm hover:accent-text transition-colors">Artists</a>
+                <a href="{% url 'login' %}" style="text-decoration: none;"><button class="btn-primary px-5 py-2 rounded-full text-sm">Login</button></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-28 pb-16 px-4">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-bold glitch accent-text leading-tight fade-in">
+                UNITY CHAMBER
+            </h1>
+            <p class="mt-6 text-lg md:text-xl text-[#9fb4c9] max-w-3xl mx-auto fade-in">
+                Where events come alive through NFT ticketing and transparent voting on Hedera. Experience, own, and decide.
+            </p>
+            
+            <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 fade-in">
+                <button class="btn-primary px-8 py-4 rounded-full text-lg font-semibold flex items-center space-x-2">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>View Upcoming Events</span>
+                </button>
+                <button class="btn-secondary px-8 py-4 rounded-full text-lg font-semibold flex items-center space-x-2">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>My NFT Tickets</span>
+                </button>
+            </div>
+            
+            <!-- Stats Section -->
+            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto fade-in">
+                <div class="stats-card card-glass p-4 text-center">
+                    <div class="text-2xl md:text-3xl font-bold accent-text">15</div>
+                    <div class="text-sm text-[#9fb4c9] mt-1">Live Events</div>
+                </div>
+                <div class="stats-card card-glass p-4 text-center">
+                    <div class="text-2xl md:text-3xl font-bold accent-text">8.2K</div>
+                    <div class="text-sm text-[#9fb4c9] mt-1">Tickets Sold</div>
+                </div>
+                <div class="stats-card card-glass p-4 text-center">
+                    <div class="text-2xl md:text-3xl font-bold accent-text">126</div>
+                    <div class="text-sm text-[#9fb4c9] mt-1">Artists</div>
+                </div>
+                <div class="stats-card card-glass p-4 text-center">
+                    <div class="text-2xl md:text-3xl font-bold accent-text">4H</div>
+                    <div class="text-sm text-[#9fb4c9] mt-1">Next Event Starts</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Events Section -->
+    <section id="events" class="py-16 px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center accent-text">Featured Events</h2>
+            <p class="text-center text-[#9fb4c9] mt-3">Experience unforgettable moments with our curated events</p>
+            
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Event Card -->
+                <div class="card-glass rounded-xl overflow-hidden fade-in">
+                    <div class="h-48 bg-gradient-to-br from-[#9d4edd] to-[#5a189a] relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-music text-white text-5xl"></i>
+                        </div>
+                        <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                            Live
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-lg">Afrobeat Night Festival</h3>
+                        <p class="text-sm text-[#9fb4c9] mt-2">March 20, 2024 • 8:00 PM GMT</p>
+                        <div class="flex justify-between items-center mt-4">
+                            <div>
+                                <p class="text-xs text-[#9fb4c9]">Tickets Available</p>
+                                <p class="font-bold accent-text">142/500</p>
+                            </div>
+                            <button class="btn-primary px-4 py-2 rounded-lg text-sm">
+                                Get Tickets
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Event Card -->
+                <div class="card-glass rounded-xl overflow-hidden fade-in">
+                    <div class="h-48 bg-gradient-to-br from-[#00f0d6] to-[#007a6c] relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-theater-masks text-white text-5xl"></i>
+                        </div>
+                        <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                            Upcoming
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-lg">Digital Art Exhibition</h3>
+                        <p class="text-sm text-[#9fb4c9] mt-2">March 25, 2024 • 6:00 PM GMT</p>
+                        <div class="flex justify-between items-center mt-4">
+                            <div>
+                                <p class="text-xs text-[#9fb4c9]">Tickets Available</p>
+                                <p class="font-bold accent-text">89/200</p>
+                            </div>
+                            <button class="btn-primary px-4 py-2 rounded-lg text-sm">
+                                Get Tickets
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Event Card -->
+                <div class="card-glass rounded-xl overflow-hidden fade-in">
+                    <div class="h-48 bg-gradient-to-br from-[#ff6b6b] to-[#c0392b] relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-fire text-white text-5xl"></i>
+                        </div>
+                        <div class="absolute top-3 right-3 bg-[#071026] px-2 py-1 rounded-lg text-xs">
+                            Soon
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-lg">Comedy Night Special</h3>
+                        <p class="text-sm text-[#9fb4c9] mt-2">April 2, 2024 • 9:00 PM GMT</p>
+                        <div class="flex justify-between items-center mt-4">
+                            <div>
+                                <p class="text-xs text-[#9fb4c9]">Tickets Available</p>
+                                <p class="font-bold accent-text">300/300</p>
+                            </div>
+                            <button class="btn-primary px-4 py-2 rounded-lg text-sm">
+                                Join Waitlist
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10">
+                <button class="btn-secondary px-6 py-3 rounded-full">
+                    View All Events
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ticketing Section -->
+    <section id="ticketing" class="py-16 px-4 bg-gradient-to-b from-[#050817] to-[#071026]">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center accent-text">NFT Ticketing</h2>
+            <p class="text-center text-[#9fb4c9] mt-3">Own your event experience with unique NFT tickets</p>
+            
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Ticket Tier -->
+                <div class="text-center fade-in">
+                    <div class="w-20 h-20 rounded-full ticket-tier-regular flex items-center justify-center mx-auto pulse">
+                        <i class="fas fa-ticket-alt text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mt-6">Regular Access</h3>
+                    <p class="text-[#9fb4c9] mt-3">General admission with standard voting rights</p>
+                    <div class="mt-4 font-bold accent-text">0.8 HBAR</div>
+                    <button class="btn-primary mt-4 px-6 py-2 rounded-full text-sm">
+                        Mint Ticket
+                    </button>
+                </div>
+                
+                <!-- Ticket Tier -->
+                <div class="text-center fade-in">
+                    <div class="w-20 h-20 rounded-full ticket-tier-vip flex items-center justify-center mx-auto pulse">
+                        <i class="fas fa-star text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mt-6">VIP Experience</h3>
+                    <p class="text-[#9fb4c9] mt-3">Priority access + enhanced voting power</p>
+                    <div class="mt-4 font-bold accent-text">1.5 HBAR</div>
+                    <button class="btn-primary mt-4 px-6 py-2 rounded-full text-sm">
+                        Mint Ticket
+                    </button>
+                </div>
+                
+                <!-- Ticket Tier -->
+                <div class="text-center fade-in">
+                    <div class="w-20 h-20 rounded-full ticket-tier-vvip flex items-center justify-center mx-auto pulse">
+                        <i class="fas fa-crown text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mt-6">VVIP Premium</h3>
+                    <p class="text-[#9fb4c9] mt-3">Front row + meet & greet + max voting</p>
+                    <div class="mt-4 font-bold accent-text">3.0 HBAR</div>
+                    <button class="btn-primary mt-4 px-6 py-2 rounded-full text-sm">
+                        Mint Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Voting Section -->
+    <section id="voting" class="py-16 px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center accent-text">Live Voting</h2>
+            <p class="text-center text-[#9fb4c9] mt-3">Your NFT ticket gives you voting power</p>
+            
+            <div class="mt-12 card-glass p-6 rounded-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Current Event: Afrobeat Night</h3>
+                    <div class="text-sm text-[#9fb4c9]">Voting ends in 3:42:16</div>
+                </div>
+                
+                <!-- Voting Progress Bars -->
+                <div class="space-y-6">
+                    <!-- Artist 1 -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium">Afro Fusion Band</span>
+                            <span class="accent-text font-bold">1,243 votes</span>
+                        </div>
+                        <div class="w-full bg-[#071026] rounded-full h-3">
+                            <div class="accent-gradient h-3 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Artist 2 -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium">Rhythm Masters</span>
+                            <span class="accent-text font-bold">987 votes</span>
+                        </div>
+                        <div class="w-full bg-[#071026] rounded-full h-3">
+                            <div class="accent-gradient h-3 rounded-full" style="width: 52%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Artist 3 -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium">Beat Collective</span>
+                            <span class="accent-text font-bold">876 votes</span>
+                        </div>
+                        <div class="w-full bg-[#071026] rounded-full h-3">
+                            <div class="accent-gradient h-3 rounded-full" style="width: 46%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button class="btn-primary px-6 py-3 rounded-full">
+                        <i class="fas fa-vote-yea mr-2"></i>
+                        Cast Your Vote (1 Vote = 1 NFT)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Artists Section -->
+    <section id="artists" class="py-16 px-4 bg-gradient-to-b from-[#071026] to-[#050817]">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center accent-text">Featured Artists</h2>
+            <p class="text-center text-[#9fb4c9] mt-3">Talented performers waiting for your vote</p>
+            
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Artist Card -->
+                <div class="card-glass p-6 rounded-xl fade-in">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center">
+                            <i class="fas fa-user-astronaut text-black text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Afro Fusion Band</h3>
+                            <p class="text-sm text-[#9fb4c9]">Music Group</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 h-48 bg-gradient-to-br from-[#00f0d6] to-[#007a6c] rounded-lg flex items-center justify-center">
+                        <i class="fas fa-music text-5xl text-white"></i>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#9fb4c9]">Current Votes</p>
+                            <p class="font-bold accent-text">1,243</p>
+                        </div>
+                        <button class="btn-secondary px-4 py-2 rounded-full text-sm">
+                            Vote Now
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Artist Card -->
+                <div class="card-glass p-6 rounded-xl fade-in">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center">
+                            <i class="fas fa-robot text-black text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Rhythm Masters</h3>
+                            <p class="text-sm text-[#9fb4c9]">Dance Crew</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 h-48 bg-gradient-to-br from-[#0052cc] to-[#00f0d6] rounded-lg flex items-center justify-center">
+                        <i class="fas fa-dragon text-5xl text-white"></i>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#9fb4c9]">Current Votes</p>
+                            <p class="font-bold accent-text">987</p>
+                        </div>
+                        <button class="btn-secondary px-4 py-2 rounded-full text-sm">
+                            Vote Now
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Artist Card -->
+                <div class="card-glass p-6 rounded-xl fade-in">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-full accent-gradient flex items-center justify-center">
+                            <i class="fas fa-feather-alt text-black text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Beat Collective</h3>
+                            <p class="text-sm text-[#9fb4c9]">Music Production</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 h-48 bg-gradient-to-br from-[#cc00ff] to-[#00f0d6] rounded-lg flex items-center justify-center">
+                        <i class="fas fa-drum text-5xl text-white"></i>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#9fb4c9]">Current Votes</p>
+                            <p class="font-bold accent-text">876</p>
+                        </div>
+                        <button class="btn-secondary px-4 py-2 rounded-full text-sm">
+                            Vote Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-4 border-t border-[#00f0d6]/20">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 rounded-full accent-gradient flex items-center justify-center">
+                        <i class="fas fa-cube text-black"></i>
+                    </div>
+                    <span class="text-xl font-bold accent-text">UNITY CHAMBER</span>
+                </div>
+                
+                <div class="flex space-x-6 mt-6 md:mt-0">
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                    <a href="#" class="text-[#9fb4c9] hover:accent-text transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center text-sm text-[#9fb4c9]">
+                <p>© 2024 UNITY CHAMBER • Events • Ticketing • Voting • Powered by Hedera</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Hide loading screen when page is loaded
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loading').style.opacity = '0';
+                setTimeout(function() {
+                    document.getElementById('loading').style.display = 'none';
+                }, 500);
+            }, 1000);
+        });
+        
+        // Mobile menu toggle
+        document.getElementById('mobileMenuButton').addEventListener('click', function() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        });
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.fade-in').forEach(element => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>

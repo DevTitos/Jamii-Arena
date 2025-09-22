@@ -8,7 +8,6 @@ from django.views import generic
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User,Group
 from django.views import View
-from django.contrib import messages
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -17,12 +16,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
 from hiero.utils import create_new_account
 from hiero.ft import associate_token
+from hiero.mirror_node import get_token_balance_for_account
 from random import randint
 from accounts.models import Profile, UserWallet
 import string
 import random
 import os
 from dotenv import load_dotenv
+from core.models import NFT
 
 load_dotenv()
 
@@ -122,7 +123,7 @@ def login_view(request):
                     login(request, user)
                     current_user =request.user
                     messages.success(request, f"Welcome back, { current_user.first_name }!")
-                    return redirect('profile')
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
                 except:#Verify.DoesNotExist
                     messages.warning(request, "An error occured while trying to verify your account, please try again")
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -138,7 +139,13 @@ def login_view(request):
 @login_required(login_url="login")
 def profile(request):
     user = request.user
-    return render(request, 'accounts/profile.html')
+    wallet = UserWallet.objects.get(user=user)
+    nfts = NFT.objects.filter(owner_wallet=wallet.recipient_id)
+    context = {
+        'wallet':wallet,
+        'nfts':nfts,
+    }
+    return render(request, 'accounts/profile.html', context)
 
 @login_required(login_url="login")
 def register_artist(request):

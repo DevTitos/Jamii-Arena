@@ -39,9 +39,16 @@ def transfer_tokens(recipient_id, amount):
     try:
         receipt = transaction.execute(client)
         print("Token transfer successful.")
+        return {
+            "status":"success",
+            "receipt":receipt,
+        }
     except Exception as e:
         print(f"Token transfer failed: {str(e)}")
-        sys.exit(1)
+        return {
+            "status":"failed",
+            "error":str(e),
+        }
 
 
 def associate_token(recipient_id_new, recipient_key_new):

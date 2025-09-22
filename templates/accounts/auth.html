@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Talent Show Arena — Access Your Account</title>
+    <title>Jamii Arena — Access Your Account</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -156,7 +156,7 @@
                 <div class="w-10 h-10 rounded-full accent-gradient flex items-center justify-center">
                     <i class="fas fa-cube text-black"></i>
                 </div>
-                <span class="text-xl font-bold accent-text">UNITY CHAMBER</span>
+                <span class="text-xl font-bold accent-text">JAMII ARENA</span>
             </div>
 
             <div class="flex items-center space-x-4">
@@ -175,14 +175,14 @@
                 <div class="w-20 h-20 rounded-full accent-gradient flex items-center justify-center mx-auto pulse">
                     <i class="fas fa-cube text-3xl text-black"></i>
                 </div>
-                <h1 class="text-3xl font-bold glitch accent-text mt-4">ACCESS ARENA</h1>
+                <h1 class="text-3xl font-bold glitch accent-text mt-4">ACCESS JAMII ARENA</h1>
                 <p class="text-[#9fb4c9] mt-2">Mint • Vote • Own • Earn</p>
             </div>
             {% include 'partials/_messages.html' %}
             <!-- Login Form -->
             <div id="login-form" class="card-glass p-8 rounded-2xl fade-in">
                 <h2 class="text-2xl font-bold text-center accent-text mb-2">Welcome Back</h2>
-                <p class="text-center text-[#9fb4c9] mb-6">Sign in to your NFT Talent Show account</p>
+                <p class="text-center text-[#9fb4c9] mb-6">Sign in to your Jamii account</p>
                 <form method="post" action="{% url 'login' %}">
                     {% csrf_token %}
                     <div class="mb-5">

@@ -31,7 +31,7 @@ def create_new_account(name):
     transaction = (
         AccountCreateTransaction()
         .set_key(new_account_public_key)
-        .set_initial_balance(100000000)  # 1 HBAR in tinybars
+        .set_initial_balance(1000000000)  # 1 HBAR in tinybars
         .set_account_memo(f"{name}'s account")
         .freeze_with(client)
     )

@@ -285,13 +285,6 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="flex items-center px-3 py-3 text-sm">
-                            <i class="fas fa-coins w-5 mr-3 text-[#9fb4c9]"></i>
-                            <span>Earnings</span>
-                            <span class="ml-auto notification-dot"></span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a href="{% url 'governance' %}" class="flex items-center px-3 py-3 text-sm">
                             <i class="fas fa-landmark w-5 mr-3 text-[#9fb4c9]"></i>
                             <span>Governance</span>
@@ -308,9 +301,11 @@
 
             <!-- Footer -->
             <div class="px-6 pt-6 border-t border-[#00f0d6]/20">
-                <button class="btn-secondary w-full py-2 rounded-lg text-sm">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Disconnect
-                </button>
+                <a href="{% url 'logout' %}">
+                    <button class="btn-secondary w-full py-2 rounded-lg text-sm">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Disconnect
+                    </button>
+                </a>
             </div>
         </div>
     </aside>
@@ -319,6 +314,33 @@
     <main class="main-content min-h-screen pb-12">
         <!-- Dashboard Content -->
         <div class="p-6">
+            <!-- Overlay for mobile menu -->
+            <div id="overlay" class="overlay"></div>
+            <!-- Top Bar -->
+            <header class="bg-[#050817] tech-border border-t-0 border-l-0 border-r-0 py-4 px-6 flex items-center justify-between">
+                <button id="menuToggle" class="lg:hidden text-[#9fb4c9] hover:text-white">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <h1 class="text-xl font-bold accent-text hidden md:block">Jamii Arena</h1>
+
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="text-[#9fb4c9] hover:text-white">
+                            <i class="fas fa-bell text-xl"></i>
+                        </button>
+                        <span class="notification-dot absolute top-0 right-0"></span>
+                    </div>
+
+                    <div class="hidden md:flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#00f0d6] to-[#007a6c] flex items-center justify-center">
+                            <i class="fas fa-user-astronaut text-white text-sm"></i>
+                        </div>
+                        <span class="text-sm">{{user.profile.user_type}}</span>
+                    </div>
+                </div>
+            </header>
+            {% include 'partials/_messages.html' %}
             {% block content %}{% endblock content %}
         </div>
     </main>

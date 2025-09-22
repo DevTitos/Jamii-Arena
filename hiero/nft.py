@@ -99,12 +99,13 @@ def create_nft(client, operator_id, operator_key):
     
     return nft_token_id
 
-def mint_nft(client, nft_token_id, operator_key):
+def mint_nft(nft_token_id, metadata):
     """Mint a non-fungible token"""
+    client, operator_id, operator_key = setup_client()
     transaction = (
         TokenMintTransaction()
         .set_token_id(nft_token_id)
-        .set_metadata(b"My NFT Metadata 1")
+        .set_metadata([metadata.encode()])
         .freeze_with(client)
     )
 
@@ -112,15 +113,17 @@ def mint_nft(client, nft_token_id, operator_key):
     
     if receipt.status != ResponseCode.SUCCESS:
         print(f"NFT minting failed with status: {ResponseCode(receipt.status).name}")
-        sys.exit(1)
+        return None
+        #sys.exit(1)
     
     print(f"NFT minted with serial number: {receipt.serial_numbers[0]}")
     
     return NftId(nft_token_id, receipt.serial_numbers[0])
 
-def associate_nft(client, account_id, token_id, account_private_key):
+def associate_nft(account_id, token_id, account_private_key, nft_id):
     """Associate a non-fungible token with an account"""
     # Associate the token_id with the new account
+    client, operator_id, operator_key = setup_client()
     associate_transaction = (
         TokenAssociateTransaction()
         .set_account_id(account_id)
@@ -133,9 +136,23 @@ def associate_nft(client, account_id, token_id, account_private_key):
     
     if receipt.status != ResponseCode.SUCCESS:
         print(f"NFT association failed with status: {ResponseCode(receipt.status).name}")
+        return None
+    print("NFT successfully associated with account")
+    # Transfer nft to the new account
+    transfer_transaction = (
+        TransferTransaction()
+        .add_nft_transfer(nft_id, operator_id, account_id)
+        .freeze_with(client)
+    )
+    
+    receipt = transfer_transaction.execute(client)
+    
+    # Check if nft transfer was successful
+    if receipt.status != ResponseCode.SUCCESS:
+        print(f"NFT transfer failed with status: {ResponseCode(receipt.status).name}")
         sys.exit(1)
     
-    print("NFT successfully associated with account")
+    print(f"Successfully transferred NFT to account {account_id}")
 
 def transfer_nft():
     """
@@ -148,10 +165,11 @@ def transfer_nft():
     """
     client, operator_id, operator_key = setup_client()
     #account_id, new_account_private_key = create_test_account(client)
-    token_id = create_nft(client, operator_id, operator_key)
-    print(f"TOKEN ID: {token_id}")
-    #nft_id = mint_nft(client, token_id, operator_key)
-    #print(f"NFT ID: {nft_id}")
+    #token_id = create_nft(client, operator_id, operator_key)
+    #print(f"TOKEN ID: {token_id}")
+    token_id=AccountId.from_string(os.getenv('REG'))
+    nft_id = mint_nft(client, token_id, operator_key)
+    print(f"NFT ID: {nft_id}")
     #associate_nft(client, account_id, token_id, new_account_private_key)
     
     # Transfer nft to the new account
@@ -170,5 +188,7 @@ def transfer_nft():
     #
     #print(f"Successfully transferred NFT to account {account_id}")
 
-if __name__ == "__main__":
-    transfer_nft()
+#if __name__ == "__main__":
+#    transfer_nft()
+
+
